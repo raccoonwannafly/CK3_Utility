@@ -1,9 +1,7 @@
 
-# 👑 CK3 Royal Utility Suite
+#  Crusader Kings 3 Royal Utility Suite
 
-> *The ultimate companion tool for Crusader Kings III players, modders, and roleplayers.*
-
-**CK3 Royal Utility** is a feature-rich web application designed to bridge the gap between technical game data (DNA strings, mod scripts) and immersive roleplay. Whether you are min-maxing a 400-point Ironman build, writing a dynasty's backstory, or deep-diving into DNA morphology for modding, this suite has a tool for you.
+Feature-rich web application designed to bridge the gap between technical game data (DNA strings, mod scripts) and immersive roleplay
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19-blue)
