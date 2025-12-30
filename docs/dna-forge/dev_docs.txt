@@ -1,0 +1,106 @@
+# CK3 DNA Forge - Developer Documentation
+
+## 1. Project Overview
+The **CK3 DNA Forge** is a specialized React application designed to simulate the character creation "Gene" system found in the strategy game *Crusader Kings 3*. It serves as a bridge between raw game data (Paradox script files) and a visual interface, allowing modders and players to manipulate genetic parameters and generate valid DNA strings.
+
+## 2. Technical Architecture
+
+### Core Stack
+- **Framework:** React 18 (Functional Components, Hooks)
+- **Language:** TypeScript (Strict typing for complex game data structures)
+- **Styling:** Tailwind CSS (Custom configuration for "CK3 Glass" aesthetic)
+- **Icons:** Lucide React
+- **Build/Runtime:** Browser-native ES Modules (via ESM.sh) for maximum portability without complex build steps.
+
+### File Structure & Responsibilities
+*   `index.html`: Entry point. Contains the Import Map (dependencies) and Tailwind configuration.
+*   `App.tsx`: The main controller. Handles global state (`geneValues`), routing between "Forge" and "Reference" views, and initial data fetching.
+*   `documents.ts`: **Critical.** The Manifest file. It lists all available `.txt` files in the `docs/` folder so the browser knows what to fetch.
+*   `constants.ts`: The static database defining all `GeneDefinitions` (Morphs, Accessories, Colors) and their ranges.
+*   `types.ts`: TypeScript interfaces (`GeneDefinition`, `GeneTemplate`, `GeneState`).
+*   `components/`:
+    *   `GeneSlider.tsx`: Renders individual sliders. Handles the math to normalize game values (0.0-1.0) into UI percentages.
+    *   `GeneInfo.tsx`: A draggable, resizable modal using `React.createPortal` to show raw game code context.
+    *   `DnaOutput.tsx`: Serializes the current state into the proprietary Paradox DNA format.
+*   `docs/`: Contains raw `.txt` files loaded at runtime.
+
+## 3. The Document Loading System (Manifest Pattern)
+
+Because this application is designed to run in environments without a backend filesystem scanner (like static hosts or code sandboxes), it uses a **Manifest Pattern** to load text resources.
+
+### How it works:
+1.  **Storage:** Text files (e.g., `01_genes_morph.txt`) are stored in the `docs/` directory.
+2.  **Manifest:** The file `documents.ts` exports a constant `DOCUMENT_MANIFEST`. This is an array of objects containing the `id`, `title`, and `path` for each file.
+3.  **Loading:** On application mount, `App.tsx` calls `loadAllDocuments()`.
+4.  **Fetching:** This function iterates through the manifest and performs a standard `fetch(path)` for each file to retrieve its text content.
+5.  **Caching:** The results are stored in memory to allow instant switching between documents in the "Game References" tab.
+
+**Adding a new document:**
+To add a new reference file, place it in `docs/` and add an entry to the `DOCUMENT_MANIFEST` array in `documents.ts`.
+
+## 4. Data Model: Genes & Templates
+
+The application's logic revolves around the `GeneDefinition` interface found in `types.ts`. CK3 genes are not simple linear sliders; they are context-dependent.
+
+### Key Concepts:
+1.  **Gene ID:** The internal game key (e.g., `gene_chin_forward`).
+2.  **Templates:** Most genes have "modes" called templates (e.g., `chin_forward_neg` vs `chin_forward_pos`).
+    *   *Negative Template:* Usually handles values < 0.5 (or -0.5 to 0.0 in raw terms).
+    *   *Positive Template:* Usually handles values > 0.5.
+3.  **Ranges:**
+    *   **Morphs:** Typically range from -0.5 to 0.5 (Male) or 0.0 to 1.0 (Blend Shapes).
+    *   **Accessories:** Integer-based indices (0, 1, 2, 3...).
+4.  **Normalization:** The `GeneSlider` component normalizes these varying ranges into a 0-100% visual slider for consistency, while maintaining the raw value in the background for export.
+
+### State Structure
+The global state (`geneValues`) is a dictionary:
+```typescript
+type GeneState = {
+  [geneId: string]: {
+    value: number;        // The raw game value (e.g., 0.125 or 127/255)
+    templateIndex: number // The index of the selected template (e.g., 0 for _neg, 1 for _pos)
+  }
+}
+```
+
+## 5. DNA Serialization (Export)
+
+The `DnaOutput` component generates the specific string format required by the game.
+
+**Format:**
+```
+ruler_designer_12345={
+    genes={
+        gene_id={ "template_name" value "template_name" value }
+        ...
+    }
+}
+```
+*Note: The generator uses the selected template name for both the dominant and recessive gene slots (Simulating a homozygous gene for consistency).*
+
+## 6. Styling System (CK3 Glass)
+
+The UI replicates the "Glass" aesthetic of the CK3 interface using Tailwind utility classes.
+
+*   **Colors:** Defined in `tailwind.config` within `index.html`.
+    *   `ck3-bg`: Dark background (#050505).
+    *   `ck3-glass`: Translucent dark gray with blur (`backdrop-blur-md`).
+    *   `ck3-accent`: Gold (#d4af37).
+    *   `ck3-border`: Subtle white border (#ffffff14).
+*   **Typography:**
+    *   Headers: 'Cinzel' (Serif, evocative of medieval text).
+    *   Body: 'Lato' (Sans-serif, clean UI text).
+    *   Code: 'Fira Code' (Monospace).
+
+## 7. Extension Guide
+
+**To add a new gene slider:**
+1.  Open `constants.ts`.
+2.  Add a new entry to the `GENE_DEFINITIONS` array.
+3.  Specify the `id`, `name`, `group`, and `type`.
+4.  Define `templates` if the gene has multiple modes (like negative/positive variations) or specific index ranges.
+
+**To add a new category:**
+1.  Open `constants.ts`.
+2.  Add to `GENE_GROUPS`.
+3.  Ensure the new genes reference this group ID.

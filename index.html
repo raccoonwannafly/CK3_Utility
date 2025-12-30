@@ -1,18 +1,273 @@
+
 <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CK3 Royal Utility</title>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&family=Inter:wght@400;600;800&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+    <script>
+      window.tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['Cinzel', 'serif'],
+              sans: ['Lato', 'sans-serif'],
+              mono: ['Fira Code', 'monospace'],
+            },
+            colors: {
+              ck3: {
+                dark: '#1c1917',
+                paper: '#292524',
+                gold: '#b45309',
+                goldLight: '#d97706',
+                accent: '#7f1d1d',
+                // Forge Specifics
+                bg: '#050505',
+                surface: '#121212',
+                glass: 'rgba(20, 20, 20, 0.65)',
+                glassHover: 'rgba(40, 40, 40, 0.65)',
+                border: 'rgba(255, 255, 255, 0.08)',
+                borderActive: 'rgba(212, 175, 55, 0.5)',
+                forgeAccent: '#d4af37',
+                text: '#f0f0f0',
+                textMuted: '#8a8a8a',
+              }
+            },
+            boxShadow: {
+              'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+              'glow': '0 0 15px rgba(212, 175, 55, 0.3)',
+            },
+            backgroundImage: {
+              'gold-gradient': 'linear-gradient(to right, #8a6e18, #d4af37, #8a6e18)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #1c1917; /* stone-900 */
+        color: #e7e5e4; /* stone-200 */
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #292524; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #78350f; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #92400e; 
+      }
+      
+      /* Range Slider Resets for Forge */
+      input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+      }
+      input[type=range]:focus {
+        outline: none;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      
+      /* --- LIGHT THEME OVERRIDES --- */
+      body.theme-light {
+        background-color: #fafaf9; /* Stone 50 */
+        color: #0c0a09; /* Stone 950 */
+      }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Security-Policy" />
+      /* Reset Main Containers */
+      body.theme-light main,
+      body.theme-light .bg-ck3-bg,
+      body.theme-light .bg-ck3-dark,
+      body.theme-light .bg-stone-950,
+      body.theme-light .bg-stone-900,
+      body.theme-light .bg-black {
+          background-color: #ffffff !important;
+          background-image: none !important;
+          border-color: #e7e5e4 !important; /* Stone 200 */
+      }
 
-    <!-- Favicon -->
-    <link rel="icon" href="assets/ck3.png" sizes="256x256" type="image/png">
+      /* Reset Specific Forge Hex Colors */
+      body.theme-light [class*="bg-[#050505]"],
+      body.theme-light [class*="bg-[#080808]"],
+      body.theme-light [class*="bg-[#1a1a1a]"],
+      body.theme-light [class*="bg-[#0a0a0a]"] {
+          background-color: #ffffff !important;
+          border-color: #e7e5e4 !important;
+      }
 
-    <script type="module" src="index.js"></script>
+      /* Secondary Surfaces (Cards, Panels) */
+      body.theme-light .bg-stone-800,
+      body.theme-light .bg-ck3-paper,
+      body.theme-light .bg-ck3-surface { 
+          background-color: #f5f5f4 !important; /* Stone 100 */
+          border-color: #d6d3d1 !important; /* Stone 300 */
+          color: #0c0a09 !important;
+      }
+      
+      /* Translucent / Glass Layers */
+      body.theme-light .bg-ck3-glass,
+      body.theme-light .bg-stone-900\/30,
+      body.theme-light .bg-stone-900\/50,
+      body.theme-light .bg-stone-900\/80,
+      body.theme-light .bg-stone-900\/95,
+      body.theme-light .bg-black\/20,
+      body.theme-light .bg-black\/30,
+      body.theme-light .bg-black\/40,
+      body.theme-light .bg-black\/50,
+      body.theme-light .bg-black\/60,
+      body.theme-light .backdrop-blur-xl,
+      body.theme-light .backdrop-blur-md,
+      body.theme-light .bg-white\/5,
+      body.theme-light .bg-white\/10 {
+          background-color: rgba(245, 245, 244, 0.8) !important; /* Stone 100 */
+          border-color: #d6d3d1 !important; /* Stone 300 */
+          color: #0c0a09 !important;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05) !important;
+      }
+
+      /* Hover States */
+      body.theme-light .hover\:bg-stone-800:hover,
+      body.theme-light .hover\:bg-stone-700:hover,
+      body.theme-light .hover\:bg-stone-600:hover,
+      body.theme-light .hover\:bg-white\/5:hover {
+          background-color: #e7e5e4 !important; /* Stone 200 */
+      }
+
+      /* Interactive Elements */
+      body.theme-light .bg-stone-700 { 
+          background-color: #e7e5e4 !important; /* Stone 200 */
+          color: #0c0a09 !important;
+          border-color: #d6d3d1 !important;
+      }
+
+      /* Inputs & Textareas */
+      body.theme-light input, 
+      body.theme-light textarea, 
+      body.theme-light select {
+          color: #0c0a09 !important;
+          background-color: #ffffff !important;
+          border-color: #a8a29e !important; /* Stone 400 */
+      }
+      body.theme-light input::placeholder, 
+      body.theme-light textarea::placeholder {
+          color: #78716c !important; /* Stone 500 */
+      }
+
+      /* Text Colors - High Contrast */
+      body.theme-light .text-stone-100, 
+      body.theme-light .text-stone-200,
+      body.theme-light .text-stone-300,
+      body.theme-light .text-white,
+      body.theme-light .text-gray-200,
+      body.theme-light .text-gray-300,
+      body.theme-light .text-ck3-text { 
+          color: #0c0a09 !important; /* Stone 950 */
+      }
+      
+      body.theme-light .text-stone-400,
+      body.theme-light .text-stone-500,
+      body.theme-light .text-gray-400,
+      body.theme-light .text-gray-500,
+      body.theme-light .text-ck3-textMuted,
+      body.theme-light .text-white\/50 { 
+          color: #44403c !important; /* Stone 700 */
+      }
+      
+      body.theme-light .text-stone-600 {
+          color: #57534e !important; /* Stone 600 */
+      }
+
+      /* Status Colors (Darker for Light Mode) */
+      body.theme-light .text-emerald-400 { color: #059669 !important; } /* Emerald 600 */
+      body.theme-light .text-emerald-500 { color: #059669 !important; }
+      body.theme-light .text-red-400 { color: #dc2626 !important; } /* Red 600 */
+      body.theme-light .text-red-500 { color: #dc2626 !important; }
+      body.theme-light .text-cyan-400 { color: #0891b2 !important; } /* Cyan 600 */
+      body.theme-light .text-purple-400 { color: #9333ea !important; } /* Purple 600 */
+      body.theme-light .text-amber-400 { color: #d97706 !important; } /* Amber 600 */
+      body.theme-light .text-blue-300 { color: #2563eb !important; } /* Blue 600 */
+      body.theme-light .text-green-300 { color: #16a34a !important; } /* Green 600 */
+      body.theme-light .text-orange-300 { color: #ea580c !important; } /* Orange 600 */
+
+      /* CK3 Gold Accents (Darker Amber) */
+      body.theme-light .text-ck3-gold,
+      body.theme-light .text-ck3-accent,
+      body.theme-light .text-ck3-goldLight,
+      body.theme-light .text-ck3-forgeAccent { 
+          color: #b45309 !important; /* Amber 700 */
+      }
+      
+      body.theme-light .bg-ck3-gold,
+      body.theme-light .bg-ck3-accent,
+      body.theme-light .bg-ck3-accent\/10 { 
+          background-color: #d97706 !important; /* Amber 600 */
+          color: white !important;
+      }
+      
+      body.theme-light .border-ck3-gold,
+      body.theme-light .border-ck3-accent,
+      body.theme-light .border-ck3-gold\/50,
+      body.theme-light .border-ck3-accent\/50 {
+          border-color: #d97706 !important;
+      }
+      
+      /* Dividers and Borders */
+      body.theme-light .border-stone-600,
+      body.theme-light .border-stone-700, 
+      body.theme-light .border-stone-800,
+      body.theme-light .border-white\/5,
+      body.theme-light .border-white\/10 { 
+          border-color: #d6d3d1 !important; /* Stone 300 */
+      }
+      
+      body.theme-light .divide-stone-700 > * + * {
+          border-color: #d6d3d1 !important;
+      }
+
+      /* Scrollbars */
+      body.theme-light ::-webkit-scrollbar-track { background: #e7e5e4; }
+      body.theme-light ::-webkit-scrollbar-thumb { background: #a8a29e; }
+      body.theme-light ::-webkit-scrollbar-thumb:hover { background: #78716c; }
+      
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react-dom": "https://esm.sh/react-dom@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "express": "https://esm.sh/express@^5.2.1",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "dotenv": "https://esm.sh/dotenv@^17.2.3",
+    "cors": "https://esm.sh/cors@^2.8.5",
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
 </head>
-
-<body>
-    <div id="app"></div>
-</body>
-
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>
