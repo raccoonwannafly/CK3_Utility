@@ -4,11 +4,57 @@ import { fetchGallery, saveToGallery, updateCharacter, deleteCharacter, importFr
 import { exportGallery, importGallery } from '../services/ioService';
 import { StoredCharacter } from '../types';
 import { TRAITS, HISTORICAL_CHARACTERS } from '../constants';
-import { Folder, History, Layers, Plus, Trash2, FolderInput, Library, LayoutGrid, List } from 'lucide-react';
+import { 
+    Folder, History, Layers, Plus, Trash2, FolderInput, Library, LayoutGrid, 
+    List, Search, Upload, Image as ImageIcon, Check, X, Maximize2, Minimize2, 
+    Move, Star, ImagePlus, GripHorizontal, ChevronLeft, ChevronRight, ZoomIn 
+} from 'lucide-react';
 
 interface GalleryProps {
   onNavigate: (tab: string) => void;
 }
+
+// Helper: Image Compression
+const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target?.result as string;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                // Max width/height to prevent huge base64 strings (1000px is sufficient for portraits)
+                const MAX_SIZE = 1000;
+                if (width > height) {
+                    if (width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    }
+                } else {
+                    if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+                
+                // Compress to JPEG at 0.7 quality (good balance)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(dataUrl);
+            };
+            img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
+    });
+};
 
 const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
   const [items, setItems] = useState<StoredCharacter[]>([]);
@@ -20,7 +66,7 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
   // Navigation State
   const [activeView, setActiveView] = useState<'all' | 'historical' | 'unsorted' | string>('all');
   
-  // Custom Collections State (Persisted in localStorage for empty folders)
+  // Custom Collections
   const [customCollections, setCustomCollections] = useState<string[]>(() => {
     const saved = localStorage.getItem('ck3_utility_collections');
     return saved ? JSON.parse(saved) : ['Campaign 1'];
@@ -33,25 +79,115 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
   const [view, setView] = useState<'grid' | 'form' | 'details'>('grid');
   const [selectedItem, setSelectedItem] = useState<StoredCharacter | null>(null);
   
-  // Steam Modal
+  // Window State (Details View)
+  const [winPos, setWinPos] = useState({ x: 100, y: 50 });
+  const [winSize, setWinSize] = useState({ w: 900, h: 600 });
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [activeImgIdx, setActiveImgIdx] = useState(0);
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [isAddingImage, setIsAddingImage] = useState(false);
+  const [isFullViewOpen, setIsFullViewOpen] = useState(false);
+
+  // Refs for drag/resize
+  const dragRef = useRef<{ startX: number, startY: number, startLeft: number, startTop: number } | null>(null);
+  const resizeRef = useRef<{ startX: number, startY: number, startW: number, startH: number } | null>(null);
+  
+  // Modals
   const [isSteamModalOpen, setIsSteamModalOpen] = useState(false);
   const [steamUrl, setSteamUrl] = useState('');
   const [steamLoading, setSteamLoading] = useState(false);
+  
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState('');
 
   // Form State
   const [formData, setFormData] = useState<Partial<StoredCharacter>>({});
   const [formErrors, setFormErrors] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Move To Modal
-  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
-
-  // Hidden file input for import
+  // Hidden inputs
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageUploadRef = useRef<HTMLInputElement>(null);
+  const detailsImageUploadRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     localStorage.setItem('ck3_utility_collections', JSON.stringify(customCollections));
   }, [customCollections]);
+
+  // Initial Window Centering
+  useEffect(() => {
+      if (view === 'details') {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          setWinPos({ x: Math.max(50, w/2 - 450), y: Math.max(50, h/2 - 300) });
+          setWinSize({ w: 900, h: 600 });
+          setActiveImgIdx(0);
+          setIsFullViewOpen(false);
+      }
+  }, [view, selectedItem]);
+
+  // Window Drag/Resize Handlers
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (dragRef.current) {
+        const deltaX = e.clientX - dragRef.current.startX;
+        const deltaY = e.clientY - dragRef.current.startY;
+        setWinPos({
+          x: dragRef.current.startLeft + deltaX,
+          y: dragRef.current.startTop + deltaY
+        });
+      }
+      if (resizeRef.current) {
+        const deltaX = e.clientX - resizeRef.current.startX;
+        const deltaY = e.clientY - resizeRef.current.startY;
+        setWinSize({
+          w: Math.max(400, resizeRef.current.startW + deltaX),
+          h: Math.max(300, resizeRef.current.startH + deltaY)
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      dragRef.current = null;
+      resizeRef.current = null;
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+
+    if (view === 'details') {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [view]);
+
+  const startDrag = (e: React.MouseEvent) => {
+    if (isMaximized) return;
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startLeft: winPos.x,
+      startTop: winPos.y
+    };
+    document.body.style.userSelect = 'none';
+  };
+
+  const startResize = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    resizeRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startW: winSize.w,
+      startH: winSize.h
+    };
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'nwse-resize';
+  };
 
   const loadGallery = async () => {
     setLoading(true);
@@ -82,15 +218,14 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
   }, []);
 
   // --- DERIVED DATA ---
-  
-  // Get counts for sidebar
   const counts = useMemo(() => {
-      const all = items.length;
       const historical = HISTORICAL_CHARACTERS.length;
+      // All now includes historical to ensure gallery is populated
+      const all = items.length + historical;
       const unsorted = items.filter(i => !i.collection || i.collection === 'Unsorted').length;
       const collections: Record<string, number> = {};
       
-      customCollections.forEach(c => collections[c] = 0); // Init 0
+      customCollections.forEach(c => collections[c] = 0);
       items.forEach(i => {
           if (i.collection && i.collection !== 'Unsorted') {
               collections[i.collection] = (collections[i.collection] || 0) + 1;
@@ -100,18 +235,20 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
       return { all, historical, unsorted, collections };
   }, [items, customCollections]);
 
-  // Filter the main list
   const filteredItems = useMemo(() => {
       let baseList: StoredCharacter[] = [];
 
       if (activeView === 'historical') {
           baseList = HISTORICAL_CHARACTERS;
       } else if (activeView === 'all') {
-          baseList = items;
+          // Merge items and historical for the 'All' view
+          // Ensure no duplicates by ID
+          const historicalIds = new Set(HISTORICAL_CHARACTERS.map(h => h.id));
+          const uniqueItems = items.filter(i => !historicalIds.has(i.id));
+          baseList = [...uniqueItems, ...HISTORICAL_CHARACTERS];
       } else if (activeView === 'unsorted') {
           baseList = items.filter(i => !i.collection || i.collection === 'Unsorted');
       } else {
-          // Specific collection
           baseList = items.filter(i => i.collection === activeView);
       }
 
@@ -152,10 +289,20 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
   const clearSelection = () => setSelectedIds(new Set());
 
   // --- COLLECTION MANAGEMENT ---
-  const handleCreateCollection = () => {
-      const name = prompt("Enter new collection name:");
+  const openCreateCollectionModal = () => {
+      setNewCollectionName('');
+      setIsCreateModalOpen(true);
+  };
+
+  const confirmCreateCollection = () => {
+      const name = newCollectionName.trim();
       if (name && !customCollections.includes(name)) {
           setCustomCollections(prev => [...prev, name]);
+          setIsCreateModalOpen(false);
+      } else if (!name) {
+          alert("Please enter a collection name.");
+      } else {
+          alert("Collection already exists.");
       }
   };
 
@@ -163,17 +310,13 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
       e.stopPropagation();
       if (!confirm(`Delete collection "${name}"? Characters inside will be moved to Unsorted.`)) return;
       
-      // Update local storage list
       setCustomCollections(prev => prev.filter(c => c !== name));
       
-      // Update characters to Unsorted
       const charsToUpdate = items.filter(i => i.collection === name);
-      // In a real app we'd batch update. Here we do it optimistically.
       setItems(prev => prev.map(i => i.collection === name ? { ...i, collection: 'Unsorted' } : i));
       
       if (activeView === name) setActiveView('all');
       
-      // Fire background updates
       charsToUpdate.forEach(char => {
           updateCharacter(char.id, { collection: 'Unsorted' });
       });
@@ -184,21 +327,48 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
       
       setLoading(true);
       try {
-          const idsToMove = Array.from(selectedIds);
-          // Optimistic UI update
+          const idsToMove = Array.from(selectedIds) as string[];
           setItems(prev => prev.map(item => 
               idsToMove.includes(item.id) ? { ...item, collection: targetCollection } : item
           ));
           
-          // Background requests
           for (const id of idsToMove) {
              await updateCharacter(id, { collection: targetCollection });
           }
           
           clearSelection();
           setIsMoveModalOpen(false);
-      } catch (e) {
+      } catch (e: any) {
           alert("Failed to move some items.");
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  const handleBulkDelete = async () => {
+      if (selectedIds.size === 0) return;
+      if (!confirm(`Are you sure you want to delete ${selectedIds.size} characters? This action cannot be undone.`)) return;
+
+      setLoading(true);
+      try {
+          const idsToDelete = Array.from(selectedIds) as string[];
+          
+          // Optimistic UI Update
+          setItems(prev => prev.filter(item => !idsToDelete.includes(item.id)));
+          
+          for (const id of idsToDelete) {
+             await deleteCharacter(id);
+          }
+
+          if (selectedItem && idsToDelete.includes(selectedItem.id)) {
+              setSelectedItem(null);
+              if (view === 'details') setView('grid');
+          }
+          
+          clearSelection();
+      } catch (e: any) {
+          alert("Failed to delete some items.");
+          loadGallery(); // Re-sync
       } finally {
           setLoading(false);
       }
@@ -246,6 +416,101 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
           setLoading(false);
           e.target.value = '';
       }
+  };
+
+  // --- IMAGE MANAGEMENT (DETAILS VIEW) ---
+  const handleAddImageToCharacter = async () => {
+    if (!selectedItem || !newImageUrl) return;
+    const updatedImages = [...selectedItem.images, newImageUrl];
+    const updatedChar = { ...selectedItem, images: updatedImages };
+    
+    setSelectedItem(updatedChar);
+    setItems(prev => prev.map(i => i.id === updatedChar.id ? updatedChar : i));
+    
+    await updateCharacter(updatedChar.id, { images: updatedImages });
+    setNewImageUrl('');
+    setIsAddingImage(false);
+    setActiveImgIdx(updatedImages.length - 1);
+  };
+
+  const handleDetailsImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!selectedItem || !e.target.files?.length) return;
+    const files = Array.from(e.target.files);
+    
+    try {
+        const compressedBase64s = await Promise.all(files.map(f => compressImage(f)));
+        const updatedImages = [...selectedItem.images, ...compressedBase64s];
+        const updatedChar = { ...selectedItem, images: updatedImages };
+
+        setSelectedItem(updatedChar);
+        setItems(prev => prev.map(i => i.id === updatedChar.id ? updatedChar : i));
+        
+        await updateCharacter(updatedChar.id, { images: updatedImages });
+        setActiveImgIdx(updatedImages.length - 1);
+    } catch (err) {
+        alert("Failed to upload image(s).");
+    } finally {
+        e.target.value = ''; // Reset
+    }
+  };
+
+  const handleSetThumbnail = async (index: number) => {
+      if (!selectedItem) return;
+      const images = [...selectedItem.images];
+      // Move selected to front
+      const target = images[index];
+      images.splice(index, 1);
+      images.unshift(target); 
+      
+      const updatedChar = { ...selectedItem, images };
+      setSelectedItem(updatedChar);
+      setItems(prev => prev.map(i => i.id === updatedChar.id ? updatedChar : i));
+      setActiveImgIdx(0);
+      
+      await updateCharacter(updatedChar.id, { images });
+  };
+  
+  const handleDeleteImage = async (index: number) => {
+      if (!selectedItem) return;
+      if (!confirm("Remove this image?")) return;
+      const images = [...selectedItem.images];
+      images.splice(index, 1);
+      
+      const updatedChar = { ...selectedItem, images };
+      setSelectedItem(updatedChar);
+      setItems(prev => prev.map(i => i.id === updatedChar.id ? updatedChar : i));
+      if(activeImgIdx >= images.length) setActiveImgIdx(Math.max(0, images.length - 1));
+      
+      await updateCharacter(updatedChar.id, { images });
+  };
+
+
+  // --- IMAGE UPLOAD (FORM VIEW) ---
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length === 0) return;
+
+      try {
+          // Compress all selected images
+          const compressedImages = await Promise.all(files.map(file => compressImage(file)));
+          
+          setFormData(prev => ({
+              ...prev,
+              images: [...(prev.images || []), ...compressedImages]
+          }));
+      } catch (err) {
+          alert("Failed to process images.");
+      } finally {
+          e.target.value = ''; // Reset input
+      }
+  };
+
+  const removeFormImage = (index: number) => {
+      setFormData(prev => {
+          const newImages = [...(prev.images || [])];
+          newImages.splice(index, 1);
+          return { ...prev, images: newImages };
+      });
   };
 
   // --- STEAM IMPORT ---
@@ -297,7 +562,8 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
       setView('form');
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, e?: React.MouseEvent) => {
+      if(e) e.stopPropagation();
       if (activeView === 'historical') return;
       if(!confirm("Are you sure you want to burn this record from the archives?")) return;
       try {
@@ -312,27 +578,7 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
       }
   };
 
-  const handleBulkDelete = async () => {
-      if (activeView === 'historical') return alert("Cannot delete historical records.");
-      if (selectedIds.size === 0) return;
-      if (!confirm(`Are you sure you want to delete ${selectedIds.size} records? This cannot be undone.`)) return;
-      
-      setLoading(true);
-      try {
-          const idsToDelete = Array.from(selectedIds) as string[];
-          for (const id of idsToDelete) {
-              await deleteCharacter(id);
-          }
-          setItems(prev => prev.filter(item => !selectedIds.has(item.id)));
-          setSelectedIds(new Set());
-      } catch (e) {
-          alert("Some items could not be deleted.");
-      } finally {
-          setLoading(false);
-      }
-  };
-
-  const handleSave = async () => {
+  const handleSaveForm = async () => {
       if (!formData.name) return setFormErrors("A name is required for the annals of history.");
       
       setIsSubmitting(true);
@@ -405,7 +651,7 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
                <div className="space-y-1">
                    <div className="flex justify-between items-center px-2 mb-2">
                        <h4 className="text-[10px] uppercase font-bold text-stone-500 tracking-widest">Collections</h4>
-                       <button onClick={handleCreateCollection} className="text-stone-500 hover:text-ck3-gold"><Plus size={14} /></button>
+                       <button onClick={openCreateCollectionModal} className="text-stone-500 hover:text-ck3-gold"><Plus size={14} /></button>
                    </div>
                    {customCollections.map(col => (
                        <button 
@@ -432,7 +678,7 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
                     <Plus size={14}/> New Character
                 </button>
                 <div className="flex gap-2">
-                     <button onClick={handleImportClick} className="flex-1 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white py-1.5 rounded text-[10px] font-bold uppercase border border-stone-700 transition-colors">Import</button>
+                     <button onClick={handleImportClick} className="flex-1 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white py-1.5 rounded text-[10px] font-bold uppercase border border-stone-700 transition-colors">Import JSON</button>
                      <button onClick={handleExport} className="flex-1 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white py-1.5 rounded text-[10px] font-bold uppercase border border-stone-700 transition-colors">Export</button>
                 </div>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" className="hidden" />
@@ -446,7 +692,6 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
       {/* HEADER / TOOLBAR */}
       {view === 'grid' && (
         <div className="p-4 border-b border-stone-700 bg-stone-900 flex justify-between items-center sticky top-0 z-20">
-             
              {selectedIds.size > 0 ? (
                  <div className="flex items-center gap-4 w-full animate-fade-in-down">
                      <div className="flex items-center gap-3 bg-ck3-gold/10 text-ck3-gold px-3 py-1.5 rounded border border-ck3-gold/30">
@@ -494,157 +739,51 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
       </div>
       )}
 
-      {/* GRID VIEW */}
+      {/* Grid of Characters */}
       {view === 'grid' && (
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-thin">
-            {loading && <div className="text-center py-20 text-stone-500 animate-pulse">Loading Archives...</div>}
-            
-            {!loading && filteredItems.length === 0 && (
-                <div className="text-center py-32 opacity-50">
-                    <Library size={48} className="mx-auto mb-4 text-stone-600"/>
-                    <p className="text-stone-500 font-serif text-lg">No records found in this section.</p>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredItems.map(item => {
-                    const isSelected = selectedIds.has(item.id);
-                    return (
-                        <div 
-                            key={item.id} 
-                            onClick={() => { setSelectedItem(item); setView('details'); }}
-                            className={`group relative bg-stone-900 rounded-lg overflow-hidden border transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:shadow-lg flex flex-col ${isSelected ? 'border-ck3-gold ring-1 ring-ck3-gold/50' : 'border-stone-800 hover:border-ck3-gold/40'}`}
-                        >
-                            {/* Selection Checkbox */}
-                            <div className="absolute top-2 right-2 z-20">
-                                <div 
-                                    onClick={(e) => toggleSelection(item.id, e)}
-                                    className={`w-5 h-5 rounded border cursor-pointer flex items-center justify-center transition-all ${isSelected ? 'bg-ck3-gold border-ck3-gold text-stone-900' : 'bg-black/50 border-stone-500 hover:border-white text-transparent'}`}
-                                >
-                                    <Check size={12} strokeWidth={4} />
-                                </div>
-                            </div>
-                            
-                            {/* Collection Tag */}
-                            {item.collection && item.collection !== 'Unsorted' && (
-                                <div className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded text-[9px] font-bold uppercase text-stone-300 border border-white/10 flex items-center gap-1">
-                                    <Folder size={8} /> {item.collection}
-                                </div>
-                            )}
-
-                            {/* Image */}
-                            <div className="aspect-[3/4] w-full relative bg-stone-950">
-                                {item.images[0] ? (
-                                    <img src={item.images[0]} className={`w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity ${isSelected ? 'opacity-100' : ''}`} loading="lazy"/>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-stone-700 text-4xl">?</div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent opacity-80" />
-                                
-                                <div className="absolute bottom-0 left-0 w-full p-4">
-                                    <h3 className="font-serif text-lg text-stone-100 leading-tight group-hover:text-ck3-gold transition-colors truncate drop-shadow-md">{item.name}</h3>
-                                    <div className="text-[10px] text-stone-400 mt-1 flex items-center gap-2">
-                                        {item.culture && <span>{item.culture}</span>}
-                                        {item.religion && <span className="opacity-50">•</span>}
-                                        {item.religion && <span>{item.religion}</span>}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-      )}
-
-      {/* MOVE TO MODAL */}
-      {isMoveModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-              <div className="bg-stone-900 border border-stone-700 rounded-lg p-6 w-full max-w-sm shadow-2xl">
-                  <h3 className="font-serif text-lg text-white mb-4">Move {selectedIds.size} Items To...</h3>
-                  <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                      <button onClick={() => handleBulkMove('Unsorted')} className="w-full text-left p-3 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-sm flex items-center gap-2 transition-colors">
-                          <Layers size={14}/> Unsorted
-                      </button>
-                      {customCollections.map(c => (
-                          <button key={c} onClick={() => handleBulkMove(c)} className="w-full text-left p-3 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-sm flex items-center gap-2 transition-colors">
-                              <Folder size={14} className="text-ck3-gold"/> {c}
-                          </button>
+          <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
+              {filteredItems.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-stone-600">
+                      <History size={48} className="mb-4 opacity-20"/>
+                      <p>No characters found in the archives.</p>
+                      {searchTerm && <p className="text-xs mt-2">Try a different search term.</p>}
+                  </div>
+              ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {filteredItems.map(item => (
+                          <div 
+                              key={item.id}
+                              onClick={() => { setSelectedItem(item); setView('details'); }}
+                              className={`group relative aspect-[3/4] bg-black/40 rounded-lg overflow-hidden border transition-all cursor-pointer shadow-lg hover:shadow-2xl hover:-translate-y-1 ${selectedIds.has(item.id) ? 'border-ck3-gold ring-1 ring-ck3-gold' : 'border-stone-800 hover:border-stone-600'}`}
+                          >
+                              {item.images[0] ? (
+                                  <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                              ) : (
+                                  <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 text-stone-700">
+                                      <ImageIcon size={32} />
+                                      <span className="text-[10px] mt-2 uppercase font-bold tracking-widest">No Portrait</span>
+                                  </div>
+                              )}
+                              
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                  <h3 className="font-serif text-white text-lg leading-tight drop-shadow-md">{item.name}</h3>
+                                  <div className="flex items-center gap-2 mt-1">
+                                      {item.category === 'historical' && <span className="bg-purple-900/60 text-purple-200 text-[9px] px-1.5 py-0.5 rounded border border-purple-500/30">Historical</span>}
+                                      {item.collection && item.collection !== 'Unsorted' && <span className="bg-ck3-gold/20 text-ck3-goldLight text-[9px] px-1.5 py-0.5 rounded border border-ck3-gold/30">{item.collection}</span>}
+                                  </div>
+                              </div>
+                              
+                              {/* Selection Checkbox */}
+                              <button 
+                                  onClick={(e) => toggleSelection(item.id, e)}
+                                  className={`absolute top-2 right-2 w-6 h-6 rounded-full border flex items-center justify-center transition-all ${selectedIds.has(item.id) ? 'bg-ck3-gold border-ck3-gold text-white' : 'bg-black/40 border-white/20 text-transparent hover:border-white/50'}`}
+                              >
+                                  <Check size={14} />
+                              </button>
+                          </div>
                       ))}
                   </div>
-                  <button onClick={() => setIsMoveModalOpen(false)} className="mt-4 w-full py-2 border border-stone-700 rounded text-xs text-stone-500 hover:text-white transition-colors uppercase font-bold">Cancel</button>
-              </div>
-          </div>
-      )}
-
-      {/* DETAILS VIEW (Overlay) */}
-      {view === 'details' && selectedItem && (
-          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md animate-fade-in overflow-hidden flex">
-              <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto h-full w-full relative">
-                  <button onClick={() => setView('grid')} className="absolute top-4 right-4 z-50 w-10 h-10 bg-black/50 hover:bg-white/10 rounded-full flex items-center justify-center text-white text-2xl transition-colors">&times;</button>
-                  
-                  {/* Left: Image */}
-                  <div className="w-full md:w-1/2 h-1/2 md:h-full relative bg-stone-950">
-                      {selectedItem.images[0] && <img src={selectedItem.images[0]} className="w-full h-full object-cover opacity-80" />}
-                      <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-stone-900 to-transparent"></div>
-                      
-                      <div className="absolute bottom-8 left-8 z-10">
-                          {selectedItem.dna && (
-                              <button onClick={() => copyDna(selectedItem.dna)} className="bg-ck3-gold hover:bg-ck3-goldLight text-stone-900 font-bold px-6 py-3 rounded shadow-lg flex items-center gap-2 transition-transform hover:-translate-y-1">
-                                  <span>🧬</span> Copy DNA
-                              </button>
-                          )}
-                      </div>
-                  </div>
-
-                  {/* Right: Info */}
-                  <div className="w-full md:w-1/2 h-1/2 md:h-full p-8 md:p-12 overflow-y-auto bg-stone-900 border-l border-stone-800">
-                      <div className="max-w-xl">
-                           <div className="flex gap-2 mb-4">
-                               {selectedItem.collection && selectedItem.collection !== 'Unsorted' && (
-                                   <span className="bg-stone-800 px-3 py-1 rounded-full text-xs font-bold uppercase text-ck3-gold border border-stone-700">{selectedItem.collection}</span>
-                               )}
-                               {selectedItem.category === 'historical' && <span className="bg-purple-900/30 px-3 py-1 rounded-full text-xs font-bold uppercase text-purple-300 border border-purple-800">Historical</span>}
-                           </div>
-                           
-                           <h1 className="text-5xl font-serif text-white mb-2">{selectedItem.name}</h1>
-                           {selectedItem.dynastyMotto && <p className="text-xl font-serif text-stone-500 italic mb-8">"{selectedItem.dynastyMotto}"</p>}
-                           
-                           <div className="grid grid-cols-2 gap-6 mb-8 text-sm border-y border-stone-800 py-6">
-                               <div>
-                                   <label className="block text-stone-500 uppercase text-[10px] font-bold mb-1">Culture</label>
-                                   <span className="text-stone-200">{selectedItem.culture || 'Unknown'}</span>
-                               </div>
-                               <div>
-                                   <label className="block text-stone-500 uppercase text-[10px] font-bold mb-1">Religion</label>
-                                   <span className="text-stone-200">{selectedItem.religion || 'Unknown'}</span>
-                               </div>
-                               <div className="col-span-2">
-                                   <label className="block text-stone-500 uppercase text-[10px] font-bold mb-1">Goal</label>
-                                   <span className="text-stone-200">{selectedItem.goal || 'None'}</span>
-                               </div>
-                           </div>
-                           
-                           <div className="prose prose-invert prose-stone mb-8">
-                               <p className="whitespace-pre-wrap">{selectedItem.bio}</p>
-                           </div>
-
-                           <div className="flex flex-wrap gap-2 mb-12">
-                                {selectedItem.traits.map(tid => {
-                                    const t = TRAITS.find(tr => tr.id === tid);
-                                    return <span key={tid} className="bg-stone-800 px-3 py-1.5 rounded text-xs text-stone-300 border border-stone-700">{t?.name || tid}</span>;
-                                })}
-                           </div>
-                           
-                           {selectedItem.category !== 'historical' && (
-                               <div className="flex gap-4 pt-8 border-t border-stone-800">
-                                   <button onClick={() => handleEdit(selectedItem)} className="px-6 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded font-bold text-sm transition-colors">Edit Record</button>
-                                   <button onClick={() => handleDelete(selectedItem.id)} className="px-6 py-2 bg-red-900/20 hover:bg-red-900/40 text-red-400 rounded font-bold text-sm transition-colors">Delete</button>
-                               </div>
-                           )}
-                      </div>
-                  </div>
-              </div>
+              )}
           </div>
       )}
 
@@ -690,7 +829,7 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
                                    value={formData.collection || 'Unsorted'}
                                    onChange={e => {
                                        if(e.target.value === '__new__') {
-                                           handleCreateCollection();
+                                           openCreateCollectionModal();
                                        } else {
                                            setFormData({...formData, collection: e.target.value});
                                        }
@@ -714,15 +853,56 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
                            />
                        </div>
                        
-                       {/* Images */}
+                       {/* Images (Import) */}
                         <div>
-                           <label className="block text-xs uppercase font-bold text-stone-500 mb-2">Portrait URL</label>
-                           <input 
-                                className="w-full bg-stone-800 border border-stone-700 rounded p-3 text-stone-100 outline-none focus:border-ck3-gold placeholder:text-stone-600 text-sm"
-                                value={formData.images?.[0] || ''}
-                                onChange={e => setFormData({...formData, images: [e.target.value]})}
-                                placeholder="https://..."
-                           />
+                           <label className="block text-xs uppercase font-bold text-stone-500 mb-2">Gallery & Portraits</label>
+                           <div className="flex gap-2 mb-3">
+                             <input 
+                                  className="flex-1 bg-stone-800 border border-stone-700 rounded p-3 text-stone-100 outline-none focus:border-ck3-gold placeholder:text-stone-600 text-sm"
+                                  placeholder="Paste Image URL..."
+                                  onKeyDown={(e) => {
+                                      if(e.key === 'Enter') {
+                                          const url = e.currentTarget.value;
+                                          if(url) {
+                                              setFormData(prev => ({...prev, images: [...(prev.images || []), url]}));
+                                              e.currentTarget.value = '';
+                                          }
+                                      }
+                                  }}
+                             />
+                             <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                multiple
+                                ref={imageUploadRef}
+                                onChange={handleImageUpload}
+                             />
+                             <button 
+                                onClick={() => imageUploadRef.current?.click()}
+                                className="bg-stone-700 hover:bg-stone-600 text-white px-4 rounded border border-stone-600 flex items-center gap-2"
+                                title="Upload Images (Stored locally, auto-compressed)"
+                             >
+                                <Upload size={16} /> Upload
+                             </button>
+                           </div>
+                           
+                           {/* Preview Grid */}
+                           {formData.images && formData.images.length > 0 && (
+                               <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 bg-stone-900/50 p-2 rounded border border-stone-800">
+                                   {formData.images.map((img, idx) => (
+                                       <div key={idx} className="aspect-square relative group rounded overflow-hidden border border-stone-700">
+                                           <img src={img} className="w-full h-full object-cover" />
+                                           <button 
+                                                onClick={() => removeFormImage(idx)}
+                                                className="absolute top-1 right-1 bg-red-900/80 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
+                                           >
+                                               &times;
+                                           </button>
+                                       </div>
+                                   ))}
+                               </div>
+                           )}
                        </div>
 
                        {/* Bio */}
@@ -741,7 +921,7 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
                        <div className="flex justify-end gap-3 pt-4 border-t border-stone-800">
                            <button onClick={() => setView('grid')} className="px-6 py-2 text-stone-400 hover:text-white font-bold transition-colors">Cancel</button>
                            <button 
-                                onClick={handleSave} 
+                                onClick={handleSaveForm} 
                                 disabled={isSubmitting}
                                 className="bg-ck3-gold hover:bg-ck3-goldLight text-stone-900 px-8 py-2 rounded font-bold shadow-lg transition-transform hover:-translate-y-0.5 disabled:opacity-50"
                            >
@@ -750,6 +930,214 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
                        </div>
                    </div>
                </div>
+          </div>
+      )}
+      
+      {/* DETAILS WINDOW (Draggable & Resizable) */}
+      {view === 'details' && selectedItem && (
+          <div 
+              className={`fixed z-50 bg-stone-900 border border-ck3-gold rounded-lg shadow-2xl overflow-hidden flex flex-col animate-fade-in ${isMaximized ? 'inset-4' : ''}`}
+              style={!isMaximized ? { left: winPos.x, top: winPos.y, width: winSize.w, height: winSize.h } : {}}
+          >
+              {/* Header Bar */}
+              <div 
+                className="h-10 bg-stone-950 border-b border-stone-800 flex justify-between items-center px-4 cursor-move select-none shrink-0"
+                onMouseDown={startDrag}
+              >
+                  <div className="flex items-center gap-2">
+                       <Move size={14} className="text-stone-500" />
+                       <span className="font-serif text-ck3-gold font-bold text-sm truncate max-w-[200px]">{selectedItem.name}</span>
+                       <span className="text-xs text-stone-600 bg-stone-800 px-1.5 rounded">{selectedItem.collection}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                      <button onClick={() => setIsMaximized(!isMaximized)} className="text-stone-500 hover:text-white p-1">
+                          {isMaximized ? <Minimize2 size={14}/> : <Maximize2 size={14}/>}
+                      </button>
+                      <button onClick={() => setView('grid')} className="text-stone-500 hover:text-white p-1">
+                          <X size={16}/>
+                      </button>
+                  </div>
+              </div>
+
+              {/* Main Content */}
+              <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+                  
+                  {/* Left Column: Images */}
+                  <div className="w-full md:w-1/3 bg-black/40 border-r border-stone-800 flex flex-col p-4 gap-4 overflow-y-auto">
+                      
+                      {/* Main Image Display */}
+                      <div className="aspect-[3/4] bg-stone-950 rounded border border-stone-700 relative group overflow-hidden shadow-lg">
+                          {selectedItem.images[activeImgIdx] ? (
+                              <img src={selectedItem.images[activeImgIdx]} className="w-full h-full object-cover" />
+                          ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center text-stone-700">
+                                  <ImageIcon size={48} />
+                                  <span className="text-xs mt-2 uppercase font-bold">No Image</span>
+                              </div>
+                          )}
+                          
+                          {/* Controls Overlay */}
+                          <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {selectedItem.images[activeImgIdx] && (
+                                <button
+                                    onClick={() => setIsFullViewOpen(true)}
+                                    className="bg-black/50 hover:bg-ck3-gold text-white p-2 rounded-full backdrop-blur-sm transition-colors"
+                                    title="View Full Image"
+                                >
+                                    <ZoomIn size={14} />
+                                </button>
+                              )}
+                              
+                              {activeImgIdx !== 0 && (
+                                  <button 
+                                    onClick={() => handleSetThumbnail(activeImgIdx)}
+                                    className="bg-black/50 hover:bg-ck3-gold text-white p-2 rounded-full backdrop-blur-sm transition-colors"
+                                    title="Set as Main Thumbnail"
+                                  >
+                                      <Star size={14} />
+                                  </button>
+                              )}
+                              <button 
+                                onClick={() => handleDeleteImage(activeImgIdx)}
+                                className="bg-black/50 hover:bg-red-600 text-white p-2 rounded-full backdrop-blur-sm transition-colors"
+                                title="Delete Image"
+                              >
+                                  <Trash2 size={14} />
+                              </button>
+                          </div>
+
+                          {selectedItem.dna && (
+                              <div className="absolute bottom-4 left-0 right-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button onClick={() => copyDna(selectedItem.dna)} className="bg-ck3-gold hover:bg-ck3-goldLight text-stone-900 font-bold px-4 py-1.5 rounded shadow-lg text-xs">
+                                      Copy DNA
+                                  </button>
+                              </div>
+                          )}
+                      </div>
+
+                      {/* Thumbnails Strip */}
+                      <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-bold text-stone-500 flex justify-between items-center">
+                              <span>Gallery ({selectedItem.images.length})</span>
+                              <button onClick={() => setIsAddingImage(!isAddingImage)} className="text-ck3-gold hover:underline flex items-center gap-1">
+                                  <ImagePlus size={12}/> Add
+                              </button>
+                          </label>
+                          
+                          {isAddingImage && (
+                              <div className="flex gap-2 mb-2 animate-fade-in">
+                                  <input 
+                                      className="flex-1 bg-stone-800 border border-stone-600 rounded px-2 py-1 text-xs text-white outline-none focus:border-ck3-gold"
+                                      placeholder="Image URL..."
+                                      value={newImageUrl}
+                                      onChange={(e) => setNewImageUrl(e.target.value)}
+                                      onKeyDown={(e) => e.key === 'Enter' && handleAddImageToCharacter()}
+                                  />
+                                  <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    multiple
+                                    className="hidden" 
+                                    ref={detailsImageUploadRef}
+                                    onChange={handleDetailsImageUpload}
+                                  />
+                                  <button 
+                                      onClick={() => detailsImageUploadRef.current?.click()} 
+                                      className="bg-stone-700 hover:bg-stone-600 text-white px-2 py-1 rounded text-xs"
+                                      title="Upload Local File"
+                                  >
+                                      <Upload size={12}/>
+                                  </button>
+                                  <button onClick={handleAddImageToCharacter} className="bg-stone-700 hover:bg-stone-600 text-white px-2 py-1 rounded text-xs">OK</button>
+                              </div>
+                          )}
+
+                          <div className="grid grid-cols-4 gap-2">
+                              {selectedItem.images.map((img, idx) => (
+                                  <div 
+                                    key={idx}
+                                    onClick={() => setActiveImgIdx(idx)}
+                                    className={`aspect-square rounded overflow-hidden cursor-pointer border-2 transition-all ${idx === activeImgIdx ? 'border-ck3-gold opacity-100 scale-105' : 'border-transparent opacity-50 hover:opacity-80'}`}
+                                  >
+                                      <img src={img} className="w-full h-full object-cover" />
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Right Column: Info */}
+                  <div className="w-full md:w-2/3 p-6 overflow-y-auto bg-stone-900">
+                       <h1 className="text-3xl font-serif text-white mb-2">{selectedItem.name}</h1>
+                       {selectedItem.dynastyMotto && <p className="text-sm font-serif text-stone-500 italic mb-6">"{selectedItem.dynastyMotto}"</p>}
+
+                       <div className="grid grid-cols-2 gap-4 mb-6 text-sm bg-black/20 p-4 rounded border border-stone-800">
+                           <div>
+                               <label className="block text-stone-500 uppercase text-[10px] font-bold mb-1">Culture</label>
+                               <span className="text-stone-300">{selectedItem.culture || 'Unknown'}</span>
+                           </div>
+                           <div>
+                               <label className="block text-stone-500 uppercase text-[10px] font-bold mb-1">Religion</label>
+                               <span className="text-stone-300">{selectedItem.religion || 'Unknown'}</span>
+                           </div>
+                           <div className="col-span-2 pt-2 border-t border-stone-800 mt-2">
+                               <label className="block text-stone-500 uppercase text-[10px] font-bold mb-1">Goal</label>
+                               <span className="text-stone-300">{selectedItem.goal || 'None'}</span>
+                           </div>
+                       </div>
+
+                       <div className="prose prose-invert prose-sm text-stone-400 mb-6">
+                           <p className="whitespace-pre-wrap">{selectedItem.bio}</p>
+                       </div>
+
+                       <div className="flex flex-wrap gap-2 mb-8">
+                            {selectedItem.traits.map(tid => {
+                                const t = TRAITS.find(tr => tr.id === tid);
+                                return <span key={tid} className="bg-stone-800 px-2 py-1 rounded text-xs text-stone-300 border border-stone-700">{t?.name || tid}</span>;
+                            })}
+                       </div>
+
+                       {selectedItem.category !== 'historical' && (
+                           <div className="flex gap-4 pt-4 border-t border-stone-800 mt-auto">
+                               <button onClick={() => handleEdit(selectedItem)} className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded text-xs font-bold uppercase transition-colors border border-stone-600">
+                                   Edit Details
+                               </button>
+                               <button onClick={(e) => handleDelete(selectedItem.id, e)} className="px-4 py-2 bg-red-900/20 hover:bg-red-900/40 text-red-400 rounded text-xs font-bold uppercase transition-colors border border-red-900/30">
+                                   Delete Record
+                               </button>
+                           </div>
+                       )}
+                  </div>
+              </div>
+
+              {/* Resize Handle */}
+              {!isMaximized && (
+                  <div 
+                    className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize flex items-end justify-end p-0.5 text-stone-600 hover:text-ck3-gold"
+                    onMouseDown={startResize}
+                  >
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+                          <path d="M10 10L0 10L10 0z" />
+                      </svg>
+                  </div>
+              )}
+          </div>
+      )}
+
+      {/* FULL IMAGE VIEW MODAL */}
+      {isFullViewOpen && selectedItem && selectedItem.images[activeImgIdx] && (
+          <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 animate-fade-in" onClick={() => setIsFullViewOpen(false)}>
+              <button 
+                  onClick={() => setIsFullViewOpen(false)} 
+                  className="absolute top-4 right-4 text-white/50 hover:text-white p-2 transition-colors"
+              >
+                  <X size={32} />
+              </button>
+              <img 
+                  src={selectedItem.images[activeImgIdx]} 
+                  className="max-w-full max-h-full object-contain shadow-2xl rounded-sm select-none"
+                  onClick={(e) => e.stopPropagation()} 
+              />
           </div>
       )}
 
@@ -774,28 +1162,51 @@ const Gallery: React.FC<GalleryProps> = ({ onNavigate }) => {
           </div>
       )}
 
+      {/* MOVE TO MODAL */}
+      {isMoveModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+              <div className="bg-stone-900 border border-stone-700 rounded-lg p-6 w-full max-w-sm shadow-2xl">
+                  <h3 className="font-serif text-lg text-white mb-4">Move {selectedIds.size} Items To...</h3>
+                  <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                      <button onClick={() => handleBulkMove('Unsorted')} className="w-full text-left p-3 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-sm flex items-center gap-2 transition-colors">
+                          <Layers size={14}/> Unsorted
+                      </button>
+                      {customCollections.map(c => (
+                          <button key={c} onClick={() => handleBulkMove(c)} className="w-full text-left p-3 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-sm flex items-center gap-2 transition-colors">
+                              <Folder size={14} className="text-ck3-gold"/> {c}
+                          </button>
+                      ))}
+                  </div>
+                  <button onClick={() => setIsMoveModalOpen(false)} className="mt-4 w-full py-2 border border-stone-700 rounded text-xs text-stone-500 hover:text-white transition-colors uppercase font-bold">Cancel</button>
+              </div>
+          </div>
+      )}
+      
+      {/* CREATE COLLECTION MODAL */}
+      {isCreateModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+              <div className="bg-stone-900 border border-stone-700 rounded-lg p-6 w-full max-w-sm shadow-2xl">
+                  <h3 className="font-serif text-lg text-white mb-4">New Collection</h3>
+                  <input 
+                      autoFocus
+                      type="text"
+                      className="w-full bg-stone-800 border border-stone-600 rounded p-2 text-stone-200 outline-none focus:border-ck3-gold mb-4"
+                      placeholder="Collection Name"
+                      value={newCollectionName}
+                      onChange={e => setNewCollectionName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && confirmCreateCollection()}
+                  />
+                  <div className="flex gap-2">
+                      <button onClick={() => setIsCreateModalOpen(false)} className="flex-1 py-2 border border-stone-700 rounded text-xs text-stone-500 hover:text-white transition-colors uppercase font-bold">Cancel</button>
+                      <button onClick={confirmCreateCollection} className="flex-1 py-2 bg-ck3-gold hover:bg-ck3-goldLight text-stone-900 rounded text-xs font-bold uppercase transition-colors shadow-lg">Create</button>
+                  </div>
+              </div>
+          </div>
+      )}
+
       </main>
     </div>
   );
 };
 
 export default Gallery;
-
-// Lucide React Check Icon component used in the grid
-function Check({ size = 24, strokeWidth = 2, className = "" }) {
-  return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth={strokeWidth} 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-      className={className}
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  )
-}

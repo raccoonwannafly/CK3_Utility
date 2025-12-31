@@ -1,0 +1,20 @@
+# Morph Lab Guide
+
+The Morph Lab (Comparator) is a tool for "Gene Alchemy".
+
+## How to use
+1.  **Paste DNA**: Paste a character's DNA string into the workbench.
+2.  **Load Mod Files**: Upload `.txt` files from a mod (e.g., EPE) that contain `morph = { ... }` definitions.
+3.  **Comparison**: The grid shows the raw values.
+    *   **Green**: Value is higher than the reference.
+    *   **Red**: Value is lower than the reference.
+
+## Sweet Spot Mixing
+The "Mix Columns" feature uses a weighted random formula to create natural variations:
+```
+Average (E) = (A + B) / 2
+Difference (D) = abs(A - B)
+Range = [E - D/4,  E + D/4]
+Result = Random(Range)
+```
+This ensures the child looks related to the parents but isn't just a strict linear average.

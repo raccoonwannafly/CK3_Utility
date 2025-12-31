@@ -1,0 +1,10 @@
+ruler_designer_12345={
+	type=male
+	id=0
+	genes={ 
+		hair_color={ 45 239 45 239 }
+		skin_color={ 172 125 172 125 }
+		eye_color={ 44 174 44 174 }
+		gene_chin_forward={ "gene_chin_forward_pos" 121 "gene_chin_forward_pos" 121 }
+    }
+}

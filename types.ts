@@ -46,6 +46,7 @@ export interface ReferenceDocument {
   path: string;
   content?: string;
   category?: string; // Folder name for grouping
+  deleted?: boolean; // Soft delete flag
 }
 
 // --- MORPH TYPES ---
