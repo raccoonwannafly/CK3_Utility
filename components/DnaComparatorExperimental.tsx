@@ -881,7 +881,8 @@ const DnaComparatorExperimental: React.FC = () => {
 
     // Determine type
     const isMod = !fileObj.isBaseline && !fileObj.isPatch && !fileObj.isDefault && !fileObj.isDnaPaste;
-    const isDna = fileObj.isBaseline || fileObj.isPatch || fileObj.isDnaPaste || fileObj.isDefault;
+    // Cast to boolean to fix type error
+    const isDna = !!(fileObj.isBaseline || fileObj.isPatch || fileObj.isDnaPaste || fileObj.isDefault);
 
     const existing = fileObj.morphs[gene];
     const data = existing || { 

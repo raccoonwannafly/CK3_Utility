@@ -1,0 +1,54 @@
+# CK3 Royal Utility Suite - Product Requirements Document (PRD)
+
+## 1. Executive Summary
+The **CK3 Royal Utility Suite** is a comprehensive companion application designed for players and modders of *Crusader Kings III*. It bridges the gap between technical game data (DNA strings, scripts) and immersive roleplay, providing tools to visualize, manipulate, and generate character data.
+
+## 2. User Personas
+*   **The Roleplayer**: Wants to create a deep backstory and visual identity for their starting ruler without writing fiction from scratch.
+*   **The Min-Maxer**: Needs to calculate trait costs efficiently to build the perfect 400-point Ironman character.
+*   **The Modder**: Needs to debug facial variations, merge DNA presets, and convert between different game data formats.
+
+## 3. Core Features & Requirements
+
+### 3.1 Trait Planner
+*   **Goal**: Calculate character customization points.
+*   **Requirements**:
+    *   List all game traits categorized (Education, Personality, Congenital, etc.).
+    *   Show point costs and effects.
+    *   Handle trait conflicts (e.g., cannot be both *Humble* and *Arrogant*).
+    *   Real-time point total calculation.
+
+### 3.2 Character Sheet
+*   **Goal**: Enhance roleplay.
+*   **Requirements**:
+    *   **Lore**: Write biography, strategy guide, and dynasty motto.
+    *   **Portrait**: Store DNA strings and image URLs.
+
+### 3.3 DNA Forge & Converter
+*   **Goal**: Manipulate genetic strings.
+*   **Requirements**:
+    *   Convert between **Persistent DNA** (Save File/Ruler Designer) and **Console Commands**.
+    *   **Granular Editor**: Edit individual gene bytes (0-255).
+    *   **Visual Forge**: Slider-based interface for modifying genes (Chin, Eyes, Nose, etc.) with visual feedback on ranges (Male/Female/Boy/Girl).
+
+### 3.4 Morph Lab (Comparator)
+*   **Goal**: Advanced analysis for modders.
+*   **Requirements**:
+    *   **File Parsing**: Read \`.txt\` mod files containing \`morph = { ... }\` blocks.
+    *   **Comparison**: Side-by-side view of multiple files/DNA strings.
+    *   **Diffing**: Highlight value differences (Green = Higher, Red = Lower).
+    *   **Sweet Spot Mixing**: Algorithm to blend two DNA sources to create a "child" or variation.
+    *   **Export**: Generate valid \`.txt\` code blocks for mod usage.
+
+### 3.5 Gallery (Archives)
+*   **Goal**: Persistence.
+*   **Requirements**:
+    *   Save created characters locally (IndexedDB).
+    *   Export/Import gallery as JSON for backup.
+    *   Steam Workshop import (via URL scraping).
+    *   **Collections**: Organize characters into albums/folders.
+
+## 4. Technical Architecture
+*   **Frontend**: React 19, TypeScript, Vite.
+*   **Styling**: Tailwind CSS (Custom "CK3 Glass" theme).
+*   **Storage**: IndexedDB for large assets (images), LocalStorage for settings.

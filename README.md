@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD
 # CK3 Royal Utility Suite
 
 A React-based web toolkit for Crusader Kings III DNA manipulation and modding.
@@ -9,11 +8,6 @@ A React-based web toolkit for Crusader Kings III DNA manipulation and modding.
 *   **Build**: Vite
 *   **Styling**: Tailwind CSS
 *   **Backend**: Node.js/Express (Steam proxy)
-=======
-#  Crusader Kings 3 Royal Utility Suite
-
-Feature-rich web application designed to bridge the gap between technical game data (DNA strings, mod scripts) and immersive roleplay
->>>>>>> ae1ff49519108d1c4de12e10e61fc73346872afe
 
 ## Modules
 

@@ -1,0 +1,12 @@
+# CK3 Royal Utility Suite
+
+Welcome, this suite combines character planning, DNA manipulation, and roleplay generation into one interface.
+This knowledge base details the inner workings of the Crusader Kings III DNA system and how this tool interacts with it.
+
+## Quick Start
+1. **Trait Planner**: Design your ruler's personality and stats.
+2. **Character Sheet**: Generate a backstory and portrait for your build.
+3. **DNA Converter**: Convert between save-game DNA strings and console commands.
+4. **Morph Lab**: For modders - analyze and mix DNA files.
+
+Use the sidebar to navigate between these tools.

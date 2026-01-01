@@ -3,6 +3,22 @@ import { Trait, TraitCategory, StoredCharacter } from './types';
 
 export const APP_NAME = "CK3 Royal Utility";
 
+export const PRESTIGE_LEVELS = [
+  "Established",
+  "Distinguished",
+  "Illustrious",
+  "Exalted among Men",
+  "The Living Legend"
+];
+
+export const PIETY_LEVELS = [
+  "Dutiful",
+  "Faithful",
+  "Devoted Servant",
+  "Paragon of Virtue",
+  "Religious Icon"
+];
+
 export const HISTORICAL_CHARACTERS: StoredCharacter[] = [
   {
     id: 'steam_2836494138',
@@ -18,7 +34,14 @@ export const HISTORICAL_CHARACTERS: StoredCharacter[] = [
     createdAt: '2023-01-01',
     dynastyMotto: 'De par le Roi du Ciel',
     goal: 'Drive the English from France',
-    category: 'historical'
+    category: 'historical',
+    pietyLevel: '4', // Religious Icon
+    prestigeLevel: '4', // Living Legend
+    dynastyName: 'd\'Arc',
+    houseName: 'd\'Arc',
+    birthName: 'Jehanne',
+    titles: ['The Maid of Orléans', 'Saint', 'Commanding General'],
+    dateBirth: '1412-01-06'
   },
   {
     id: 'hist_william',
@@ -27,14 +50,22 @@ export const HISTORICAL_CHARACTERS: StoredCharacter[] = [
     religion: 'Catholic',
     race: 'Frankish',
     traits: ['ambitious', 'diligent', 'brave', 'brilliant_strategist', 'education_martial_4'],
-    dna: '', 
-    images: ['https://i.imgur.com/kH1yqXl.jpeg'], 
+    dna: '',
+    images: ['https://i.imgur.com/kH1yqXl.jpeg'],
     bio: 'The Duke of Normandy who launched the Norman conquest of England in 1066. A man of immense ambition and military prowess.',
     tags: ['1066', 'Recommended'],
     createdAt: '1066-01-01',
     dynastyMotto: 'Dieu et mon droit',
     goal: 'Conquer the Kingdom of England',
-    category: 'historical'
+    category: 'historical',
+    prestigeLevel: '3',
+    pietyLevel: '1',
+    dynastyName: 'de Normandie',
+    houseName: 'de Normandie',
+    birthName: 'Guillaume',
+    titles: ['King of England', 'Duke of Normandy'],
+    dateBirth: '1028-09-01',
+    dateStart: '1066-12-25'
   },
   {
     id: 'hist_matilda',
@@ -42,15 +73,22 @@ export const HISTORICAL_CHARACTERS: StoredCharacter[] = [
     culture: 'Italian',
     religion: 'Catholic',
     race: 'Italian',
-    traits: ['zealous', 'intellect_good_3', 'diplomat', 'scholar', 'education_diplomacy_4'], 
+    traits: ['zealous', 'intellect_good_3', 'diplomat', 'scholar', 'education_diplomacy_4'],
     dna: '',
-    images: ['https://i.imgur.com/7bQ6m8R.jpeg'], 
+    images: ['https://i.imgur.com/7bQ6m8R.jpeg'],
     bio: 'The "Great Countess", a powerful feudal ruler in northern Italy and the chief Italian supporter of Pope Gregory VII during the Investiture Controversy.',
     tags: ['1066', 'Recommended'],
     createdAt: '1066-01-01',
     dynastyMotto: 'For Faith and Domain',
     goal: 'Protect the Papacy',
-    category: 'historical'
+    category: 'historical',
+    prestigeLevel: '2',
+    pietyLevel: '4',
+    dynastyName: 'di Canossa',
+    houseName: 'di Canossa',
+    birthName: 'Matilda',
+    titles: ['Margravine of Tuscany', 'Vice-Queen of Italy'],
+    dateBirth: '1046-03-01'
   },
   {
     id: 'hist_bjorn',
@@ -66,7 +104,14 @@ export const HISTORICAL_CHARACTERS: StoredCharacter[] = [
     createdAt: '0867-01-01',
     dynastyMotto: 'Iron and Blood',
     goal: 'Form the Kingdom of Sweden',
-    category: 'historical'
+    category: 'historical',
+    prestigeLevel: '4',
+    pietyLevel: '2',
+    dynastyName: 'Munsö',
+    houseName: 'Munsö',
+    titles: ['King of Sweden', 'Chieftain'],
+    dateBirth: '0777-01-01',
+    dateStart: '0867-01-01'
   },
   {
     id: 'hist_haesteinn',
@@ -82,199 +127,851 @@ export const HISTORICAL_CHARACTERS: StoredCharacter[] = [
     createdAt: '0867-01-01',
     dynastyMotto: 'To the Ends of the Earth',
     goal: 'Carve out a Realm anywhere',
-    category: 'historical'
+    category: 'historical',
+    prestigeLevel: '3',
+    pietyLevel: '0',
+    dynastyName: 'Haesteinn',
+    houseName: 'Haesteinn',
+    titles: ['Count of Montaigu', 'Viking Chieftain'],
+    dateBirth: '0810-01-01',
+    dateStart: '0867-01-01'
   }
 ];
 
 export const TRAITS: Trait[] = [
-  // ... (rest of the file remains identical)
-  // --- EDUCATION (Diplomacy) ---
-  { id: 'education_diplomacy_1', name: 'Naive Appeaser', cost: 0, category: TraitCategory.EDUCATION, description: '+2 Diplomacy', opposites: ['education_diplomacy_2', 'education_diplomacy_3', 'education_diplomacy_4'] },
-  { id: 'education_diplomacy_2', name: 'Adequate Bargainer', cost: 40, category: TraitCategory.EDUCATION, description: '+4 Diplomacy', opposites: ['education_diplomacy_1', 'education_diplomacy_3', 'education_diplomacy_4'] },
-  { id: 'education_diplomacy_3', name: 'Charismatic Negotiator', cost: 80, category: TraitCategory.EDUCATION, description: '+6 Diplomacy', opposites: ['education_diplomacy_1', 'education_diplomacy_2', 'education_diplomacy_4'] },
-  { id: 'education_diplomacy_4', name: 'Grey Eminence', cost: 160, category: TraitCategory.EDUCATION, description: '+8 Diplomacy, +40% Prestige', opposites: ['education_diplomacy_1', 'education_diplomacy_2', 'education_diplomacy_3'] },
-  // ... (Include all other TRAITS here to preserve file integrity)
-  // --- EDUCATION (Martial) ---
-  { id: 'education_martial_1', name: 'Misguided Warrior', cost: 0, category: TraitCategory.EDUCATION, description: '+2 Martial', opposites: ['education_martial_2', 'education_martial_3', 'education_martial_4'] },
-  { id: 'education_martial_2', name: 'Tough Soldier', cost: 40, category: TraitCategory.EDUCATION, description: '+4 Martial', opposites: ['education_martial_1', 'education_martial_3', 'education_martial_4'] },
-  { id: 'education_martial_3', name: 'Skilled Tactician', cost: 80, category: TraitCategory.EDUCATION, description: '+6 Martial', opposites: ['education_martial_1', 'education_martial_2', 'education_martial_4'] },
-  { id: 'education_martial_4', name: 'Brilliant Strategist', cost: 160, category: TraitCategory.EDUCATION, description: '+8 Martial, +40% Levy Size', opposites: ['education_martial_1', 'education_martial_2', 'education_martial_3'] },
+  // --- Personality Traits ---
+  {
+    name: "Brave",
+    id: "brave",
+    cost: 40,
+    description: "+2 Martial, +3 Prowess, +10 Attraction Opinion, +10 Glory Hound Vassal Opinion, +100% Likelihood of capture or death in Battle, +10 Same Trait Opinion, -10 Opposite Trait Opinion, Stress Loss through Hunting",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Craven"]
+  },
+  {
+    name: "Craven",
+    id: "craven",
+    cost: -10,
+    description: "-2 Martial, +2 Intrigue, -3 Prowess, -10 Attraction Opinion, +10 Days Enemy Hostile Scheme Phase Length, +10% Scheme Secrecy, +25% Travel Safety, -5 Courtly Vassal Opinion, -15 Glory Hound Vassal Opinion, -50% Likelihood of capture or death in Battle, +20 Same Trait Opinion, Stress Gain through Torture",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Brave"]
+  },
+  {
+    name: "Calm",
+    id: "calm",
+    cost: 25,
+    description: "+1 Diplomacy, +1 Intrigue, +10% Stress Loss, +50% Dread Decay, +10% Scheme Discovery Chance, +10 Same Trait Opinion, -10 Opposite Trait Opinion, Enables the Meditate in Seclusion decision",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Wrathful"]
+  },
+  {
+    name: "Wrathful",
+    id: "wrathful",
+    cost: 30,
+    description: "-1 Diplomacy, +3 Martial, -1 Intrigue, +20 Natural Dread, -10 Courtly Vassal Opinion, +5 Glory Hound Vassal Opinion, -10 Parochial Vassal Opinion, Enables the Punish Criminal interaction",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Calm"]
+  },
+  {
+    name: "Chaste",
+    id: "chaste",
+    cost: 20,
+    description: "+2 Learning, -25% Fertility, +40 Days Seduce Scheme Phase Length, +10 Same Trait Opinion, -10 Opposite Trait Opinion, Harder to seduce",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Lustful"]
+  },
+  {
+    name: "Lustful",
+    id: "lustful",
+    cost: 25,
+    description: "+2 Intrigue, +25% Fertility, -10 Days Seduce Scheme Phase Length, +10 Same Trait Opinion, -10 Opposite Trait Opinion, -50% Asexuality Chance, Easier to seduce",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Chaste"]
+  },
+  {
+    name: "Content",
+    id: "content",
+    cost: 20,
+    description: "-1 Intrigue, +2 Learning, +10% Stress Loss, +20 Opinion of Liege, +10 Opinion of Vassals, +10 Parochial Vassal Opinion, +20 Same Trait Opinion, Stress Gain through Claim Throne, Stress Gain through Execution of non-criminal prisoners, Stress Gain through Force onto Council",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Ambitious"]
+  },
+  {
+    name: "Ambitious",
+    id: "ambitious",
+    cost: 40,
+    description: "+1 Diplomacy, +1 Martial, +1 Stewardship, +1 Intrigue, +1 Learning, +1 Prowess, +25% Stress Gain, -15 Opinion of Liege, +10 Glory Hound Vassal Opinion, -15 Same Trait Opinion, Stress Gain through Gifting Titles (if under Domain Limit), Stress Gain through Granting Vassals Independence, Stress Gain through Signing White Peace in Offensive Wars",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Content"]
+  },
+  {
+    name: "Diligent",
+    id: "diligent",
+    cost: 40,
+    description: "+2 Diplomacy, +3 Stewardship, +3 Learning, -50% Stress Loss, +5 Parochial Vassal Opinion, +10 Same Trait Opinion, -10 Opposite Trait Opinion, Enables the Develop Capital decision, Stress Loss through Hunting",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Lazy"]
+  },
+  {
+    name: "Lazy",
+    id: "lazy",
+    cost: -10,
+    description: "-1 Diplomacy, -1 Intrigue, -1 Stewardship, -1 Martial, -1 Learning, +50% Stress Loss, -10 Travel Speed, No Stress Loss through Hunting",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Diligent"]
+  },
+  {
+    name: "Forgiving",
+    id: "forgiving",
+    cost: 25,
+    description: "+2 Diplomacy, -2 Intrigue, +1 Learning, +15 Prisoner Opinion, +15 Minority Vassal Opinion, +10 Same Trait Opinion, -10 Opposite Trait Opinion, Enables the Abandon Hook interaction, Stress Gain through Blackmail, Stress Gain through Imprisonment, Stress Gain through Murder, Stress Gain through Title Revocation, Stress Gain through Torture",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Vengeful"]
+  },
+  {
+    name: "Vengeful",
+    id: "vengeful",
+    cost: 30,
+    description: "-2 Diplomacy, +2 Intrigue, +2 Prowess, +15% Dread Gain, +15 Hostile Scheme Success Chance against Rivals, Enables the Fabricate Hook Scheme against Rivals, Stress Loss through Execution of Rivals, Stress Loss through Murder of Rivals",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Forgiving"]
+  },
+  {
+    name: "Generous",
+    id: "generous",
+    cost: 20,
+    description: "+3 Diplomacy, -10% Monthly Income, +15 Courtly Vassal Opinion, -15 Opposite Trait Opinion, Stress Gain from Demanding Money, Stress Loss from Gifting Money",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Greedy"]
+  },
+  {
+    name: "Greedy",
+    id: "greedy",
+    cost: 30,
+    description: "-2 Diplomacy, +5% Monthly Income, +10% Monthly Income per Stress Level, -15 Courtly Vassal Opinion, Stress Gain through Gifting Money, Stress Gain through Granting Title (if under Domain Limit), Stress Loss through Extra Taxes",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Generous"]
+  },
+  {
+    name: "Gregarious",
+    id: "gregarious",
+    cost: 30,
+    description: "+2 Diplomacy, +0.10 Monthly Influence, +5 Attraction Opinion, -10 Days Personal Scheme Phase Length, +5 Courtly Vassal Opinion, +10 Same Trait Opinion, Stress Gain from Failure during Sway schemes, Stress Loss through Feasting",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Shy"]
+  },
+  {
+    name: "Shy",
+    id: "shy",
+    cost: -10,
+    description: "-2 Diplomacy, +1 Learning, -5 Attraction Opinion, -20 Days Personal Scheme Phase Length, +20 Enemy Hostile Scheme Phase Length, +25% Travel Safety, +5 Plague Resistance, +20 Learn Language Scheme Phase Length, +10 Parochial Vassal Opinion, +10 Same Trait Opinion, Enables the Withdraw from View Countermeasure (Tier 4), Stress Gain through Plots",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Gregarious"]
+  },
+  {
+    name: "Honest",
+    id: "honest",
+    cost: 20,
+    description: "+2 Diplomacy, -4 Intrigue, +5 Courtly Vassal Opinion, +10 Same Trait Opinion, -10 Opposite Trait Opinion, Stress Gain through Blackmail, Stress Loss from Exposing Secrets",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Deceitful"]
+  },
+  {
+    name: "Deceitful",
+    id: "deceitful",
+    cost: 30,
+    description: "-2 Diplomacy, +4 Intrigue, -10 Opposite Trait Opinion, Enables the Study the Art of Scheming decision",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Honest"]
+  },
+  {
+    name: "Humble",
+    id: "humble",
+    cost: 20,
+    description: "+0.5 Monthly Piety, +10 Opinion of Liege, +10 Opinion of Vassals, +10 Clergy Opinion, +10 Zealot Vassal Opinion, -15 Opposite Trait Opinion",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Arrogant"]
+  },
+  {
+    name: "Arrogant",
+    id: "arrogant",
+    cost: 20,
+    description: "+1 Monthly Prestige, -5 Opinion of Liege, -5 Opinion of Vassals, -10% Scheme Secrecy, -15 Opposite Trait Opinion, Stress Gain through Granting Vassals Independence, Stress Gain through Legitimizing Bastard, Stress Gain through Signing White Peace in Offensive Wars, Unique 'This is you' description from beauty traits",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Humble"]
+  },
+  {
+    name: "Just",
+    id: "just",
+    cost: 40,
+    description: "+2 Stewardship, -3 Intrigue, +1 Learning, +15 Parochial Vassal Opinion, +15 Minority Vassal Opinion, Increased Initial Legitimacy, +10 Same Trait Opinion, -10 Opposite Trait Opinion, Stress Gain through Blackmail, Stress Gain through Execution of Prisoners, Stress Loss from Exposing Secrets",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Arbitrary"]
+  },
+  {
+    name: "Arbitrary",
+    id: "arbitrary",
+    cost: 30,
+    description: "-2 Stewardship, +3 Intrigue, -1 Learning, -50% Stress Gain, +15 Natural Dread, -5 Vassal Opinion, Enables the Dismiss Hook interaction, Enables the Arbitrary Arrest Countermeasure (Tier 2)",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Just"]
+  },
+  {
+    name: "Patient",
+    id: "patient",
+    cost: 30,
+    description: "+2 Learning, +5 Liege Opinion, +10 Enemy Hostile Scheme Phase Length, +10 Parochial Vassal Opinion, -15 Opposite Trait Opinion",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Impatient"]
+  },
+  {
+    name: "Impatient",
+    id: "impatient",
+    cost: 25,
+    description: "-2 Learning, +20% Monthly Prestige, -5 Opinion of Liege, -10 Days Hostile Scheme Phase Length, +25.0% Travel Speed, -10 Travel Safety, -10 Courtly Vassal Opinion, -10 Parochial Vassal Opinion, -15 Opposite Trait Opinion, Enables the Expedite Schemes decision",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Patient"]
+  },
+  {
+    name: "Temperate",
+    id: "temperate",
+    cost: 40,
+    description: "+2 Stewardship, +0.25 Health, -10 Courtly Vassal Opinion, +10 Same Trait Opinion, -10 Opposite Trait Opinion",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Gluttonous"]
+  },
+  {
+    name: "Gluttonous",
+    id: "gluttonous",
+    cost: 20,
+    description: "-2 Stewardship, +10% Stress Loss, -5 Attraction Opinion, +10 Same Trait Opinion, -10 Opposite Trait Opinion, Less likely to die from poisoning during Murder schemes",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Temperate"]
+  },
+  {
+    name: "Trusting",
+    id: "trusting",
+    cost: 10,
+    description: "+2 Diplomacy, -2 Intrigue, +15 Opinion of Liege, +15 Opinion of Vassals, +15.0% Initial Enemy Hostile Scheme Success Chance, -10 Travel Safety, Can offer potential Agent a Strong Hook, Stress Gain through Blackmail of Non-criminal prisoners, Stress Gain through Execution of Non-criminal prisoners",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Paranoid"]
+  },
+  {
+    name: "Paranoid",
+    id: "paranoid",
+    cost: -10,
+    description: "-1 Diplomacy, +3 Intrigue, +100% Stress gain, +25% Dread Gain, -10 Opinion of Vassals, +10% Scheme Discovery Chance, -25.0% Initial Enemy Personal Scheme Success Chance, -10 Travel Speed, +10 Travel Safety, Enables all Countermeasure (Tier 2), Stress Gain through Inviting characters to court, Stress Gain through Plots",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Trusting"]
+  },
+  {
+    name: "Zealous",
+    id: "zealous",
+    cost: 30,
+    description: "+2 Martial, +20% Monthly Piety, -35 Opinion of Different Faith, +20% Faith Conversion Cost, +15 Zealot Vassal Opinion, +15 Same Trait and Faith Opinion, -10 Opposite Trait Opinion, Stress Loss through Execution (Different Faith)",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Cynical"]
+  },
+  {
+    name: "Cynical",
+    id: "cynical",
+    cost: 30,
+    description: "+2 Intrigue, +2 Learning, -20% Monthly Piety, -20% Faith Conversion Cost, -15 Zealot Vassal Opinion, +10 Same Trait Opinion, -10 Opposite Trait Opinion",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Zealous"]
+  },
+  {
+    name: "Compassionate",
+    id: "compassionate",
+    cost: 10,
+    description: "+2 Diplomacy, -2 Intrigue, -15 Natural Dread, +100% Dread Decay, +5 Attraction Opinion, +10 Courtly Vassal Opinion, +15 Minority Vassal Opinion, -15 Opposite Trait Opinion, Enables the Adopt interaction, Stress Gain through Blackmail, Stress Gain through Break up with lover, Stress Gain through Denounce, Stress Gain through Disinherit, Stress Gain through Dismiss Concubine, Stress Gain through Execution, Stress Gain through Fabricate Hook, Stress Gain through Imprison, Stress Gain through Move to Dungeon, Stress Gain through Start Abduct, Stress Gain through Start Murder, Stress Gain through Title Revocation, Stress Gain through Torture",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Callous"]
+  },
+  {
+    name: "Callous",
+    id: "callous",
+    cost: 40,
+    description: "-2 Diplomacy, +2 Intrigue, +25% Dread Gain, -20% Tyranny Gain, -25% Dread Decay, -5 Attraction Opinion, -5 Close Family Opinion, -10 Courtly Vassal Opinion, Stress Gain from Releasing Prisoners without Demands",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Compassionate"]
+  },
+  {
+    name: "Fickle",
+    id: "fickle",
+    cost: 25,
+    description: "+2 Diplomacy, -2 Stewardship, +1 Intrigue, +20 Days Enemy Hostile Scheme Phase Length",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Stubborn"]
+  },
+  {
+    name: "Stubborn",
+    id: "stubborn",
+    cost: 30,
+    description: "+3 Stewardship, +0.25 Health (Disease Resistance), -5 Liege Opinion, -10 Courtly Vassal Opinion, -10 Parochial Vassal Opinion, -5 Minority Vassal Opinion",
+    category: TraitCategory.PERSONALITY,
+    opposites: ["Fickle"]
+  },
 
-  // --- EDUCATION (Stewardship) ---
-  { id: 'education_stewardship_1', name: 'Indulgent Wastrel', cost: 0, category: TraitCategory.EDUCATION, description: '+2 Stewardship', opposites: ['education_stewardship_2', 'education_stewardship_3', 'education_stewardship_4'] },
-  { id: 'education_stewardship_2', name: 'Thrifty Clerk', cost: 40, category: TraitCategory.EDUCATION, description: '+4 Stewardship', opposites: ['education_stewardship_1', 'education_stewardship_3', 'education_stewardship_4'] },
-  { id: 'education_stewardship_3', name: 'Fortune Builder', cost: 80, category: TraitCategory.EDUCATION, description: '+6 Stewardship', opposites: ['education_stewardship_1', 'education_stewardship_2', 'education_stewardship_4'] },
-  { id: 'education_stewardship_4', name: 'Midas Touched', cost: 160, category: TraitCategory.EDUCATION, description: '+8 Stewardship, +40% Monthly Income', opposites: ['education_stewardship_1', 'education_stewardship_2', 'education_stewardship_3'] },
+  // --- Education Traits ---
+  {
+    name: "Naive Appeaser",
+    id: "naive_appeaser",
+    cost: 0,
+    description: "+0 Diplomacy",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Adequate Bargainer",
+    id: "adequate_bargainer",
+    cost: 20,
+    description: "+2 Diplomacy",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Charismatic Negotiator",
+    id: "charismatic_negotiator",
+    cost: 40,
+    description: "+4 Diplomacy, +10% Monthly Diplomacy Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Grey Eminence",
+    id: "grey_eminence",
+    cost: 80,
+    description: "+6 Diplomacy, +20% Monthly Diplomacy Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Virtuoso Arbitrator",
+    id: "virtuoso_arbitrator",
+    cost: 160,
+    description: "+8 Diplomacy, +1 Learning, +30% Monthly Diplomacy Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
 
-  // --- EDUCATION (Intrigue) ---
-  { id: 'education_intrigue_1', name: 'Amateurish Plotter', cost: 0, category: TraitCategory.EDUCATION, description: '+2 Intrigue', opposites: ['education_intrigue_2', 'education_intrigue_3', 'education_intrigue_4'] },
-  { id: 'education_intrigue_2', name: 'Flamboyant Trickster', cost: 40, category: TraitCategory.EDUCATION, description: '+4 Intrigue', opposites: ['education_intrigue_1', 'education_intrigue_3', 'education_intrigue_4'] },
-  { id: 'education_intrigue_3', name: 'Intricate Webweaver', cost: 80, category: TraitCategory.EDUCATION, description: '+6 Intrigue', opposites: ['education_intrigue_1', 'education_intrigue_2', 'education_intrigue_4'] },
-  { id: 'education_intrigue_4', name: 'Elusive Shadow', cost: 160, category: TraitCategory.EDUCATION, description: '+8 Intrigue, +40% Scheme Power', opposites: ['education_intrigue_1', 'education_intrigue_2', 'education_intrigue_3'] },
+  {
+    name: "Misguided Warrior",
+    id: "misguided_warrior",
+    cost: 0,
+    description: "+0 Martial",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Tough Soldier",
+    id: "tough_soldier",
+    cost: 20,
+    description: "+2 Martial",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Skilled Tactician",
+    id: "skilled_tactician",
+    cost: 40,
+    description: "+4 Martial, +10% Monthly Martial Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Brilliant Strategist",
+    id: "brilliant_strategist",
+    cost: 80,
+    description: "+6 Martial, +20% Monthly Martial Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Exalted Warlord",
+    id: "exalted_warlord",
+    cost: 160,
+    description: "+8 Martial, +1 Diplomacy, +30% Monthly Martial Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
 
-  // --- EDUCATION (Learning) ---
-  { id: 'education_learning_1', name: 'Conscientious Scribe', cost: 0, category: TraitCategory.EDUCATION, description: '+2 Learning', opposites: ['education_learning_2', 'education_learning_3', 'education_learning_4'] },
-  { id: 'education_learning_2', name: 'Insightful Thinker', cost: 40, category: TraitCategory.EDUCATION, description: '+4 Learning', opposites: ['education_learning_1', 'education_learning_3', 'education_learning_4'] },
-  { id: 'education_learning_3', name: 'Astute Intellectual', cost: 80, category: TraitCategory.EDUCATION, description: '+6 Learning', opposites: ['education_learning_1', 'education_learning_2', 'education_learning_4'] },
-  { id: 'education_learning_4', name: 'Mastermind Philosopher', cost: 160, category: TraitCategory.EDUCATION, description: '+8 Learning, +40% Piety', opposites: ['education_learning_1', 'education_learning_2', 'education_learning_3'] },
-  
-  // --- EDUCATION (Prowess) ---
-  { id: 'prowess_education_1', name: 'Bumbling Squire', cost: 0, category: TraitCategory.EDUCATION, description: '+1 Prowess', opposites: ['prowess_education_2', 'prowess_education_3', 'prowess_education_4'] },
-  { id: 'prowess_education_2', name: 'Confident Knight', cost: 40, category: TraitCategory.EDUCATION, description: '+2 Prowess', opposites: ['prowess_education_1', 'prowess_education_3', 'prowess_education_4'] },
-  { id: 'prowess_education_3', name: 'Formidable Banneret', cost: 80, category: TraitCategory.EDUCATION, description: '+3 Prowess', opposites: ['prowess_education_1', 'prowess_education_2', 'prowess_education_4'] },
-  { id: 'prowess_education_4', name: 'Famous Champion', cost: 160, category: TraitCategory.EDUCATION, description: '+4 Prowess, +Prestige', opposites: ['prowess_education_1', 'prowess_education_2', 'prowess_education_3'] },
+  {
+    name: "Indulgent Wastrel",
+    id: "indulgent_wastrel",
+    cost: 0,
+    description: "+0 Stewardship",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Thrifty Clerk",
+    id: "thrifty_clerk",
+    cost: 20,
+    description: "+2 Stewardship",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Fortune Builder",
+    id: "fortune_builder",
+    cost: 40,
+    description: "+4 Stewardship, +10% Monthly Stewardship Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Midas Touched",
+    id: "midas_touched",
+    cost: 80,
+    description: "+6 Stewardship, +20% Monthly Stewardship Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Golden Sovereign",
+    id: "golden_sovereign",
+    cost: 160,
+    description: "+8 Stewardship, +1 Learning, +30% Monthly Stewardship Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
 
-  // --- PERSONALITY ---
-  { id: 'ambitious', name: 'Ambitious', cost: 40, category: TraitCategory.PERSONALITY, description: '+2 All Stats, +25% Stress Gain', opposites: ['content'] },
-  { id: 'content', name: 'Content', cost: 20, category: TraitCategory.PERSONALITY, description: '+2 Learning, +1 Stewardship, -10% Stress', opposites: ['ambitious'] },
-  { id: 'arrogant', name: 'Arrogant', cost: 10, category: TraitCategory.PERSONALITY, description: '+1 Prestige/m, -5 Opinion', opposites: ['humble'] },
-  { id: 'humble', name: 'Humble', cost: 20, category: TraitCategory.PERSONALITY, description: '+0.5 Piety/m, +10 Opinion', opposites: ['arrogant'] },
-  { id: 'brave', name: 'Brave', cost: 40, category: TraitCategory.PERSONALITY, description: '+2 Martial, +3 Prowess, +10 Attraction', opposites: ['craven'] },
-  { id: 'craven', name: 'Craven', cost: -20, category: TraitCategory.PERSONALITY, description: '-2 Martial, -3 Prowess, -5 Attraction', opposites: ['brave'] },
-  { id: 'calm', name: 'Calm', cost: 20, category: TraitCategory.PERSONALITY, description: '+1 Diplomacy, +1 Intrigue, +10 Stress Loss', opposites: ['wrathful'] },
-  { id: 'wrathful', name: 'Wrathful', cost: 20, category: TraitCategory.PERSONALITY, description: '+2 Martial, -1 Diplomacy, +20 Dread Gain', opposites: ['calm'] },
-  { id: 'chaste', name: 'Chaste', cost: 20, category: TraitCategory.PERSONALITY, description: '+2 Learning, -25% Fertility', opposites: ['lustful'] },
-  { id: 'lustful', name: 'Lustful', cost: 25, category: TraitCategory.PERSONALITY, description: '+2 Intrigue, +25% Fertility', opposites: ['chaste'] },
-  { id: 'compassionate', name: 'Compassionate', cost: 15, category: TraitCategory.PERSONALITY, description: '+2 Diplomacy, -2 Intrigue', opposites: ['callous', 'sadistic'] },
-  { id: 'callous', name: 'Callous', cost: 35, category: TraitCategory.PERSONALITY, description: '+2 Intrigue, -2 Diplomacy, +25% Dread', opposites: ['compassionate'] },
-  { id: 'sadistic', name: 'Sadistic', cost: 45, category: TraitCategory.PERSONALITY, description: '+2 Intrigue, +3 Prowess, +35 Dread', opposites: ['compassionate'] },
-  { id: 'cynical', name: 'Cynical', cost: 20, category: TraitCategory.PERSONALITY, description: '+2 Intrigue, +2 Learning', opposites: ['zealous'] },
-  { id: 'zealous', name: 'Zealous', cost: 30, category: TraitCategory.PERSONALITY, description: '+2 Martial, +20% Piety', opposites: ['cynical'] },
-  { id: 'deceitful', name: 'Deceitful', cost: 20, category: TraitCategory.PERSONALITY, description: '+4 Intrigue, -2 Diplomacy', opposites: ['honest'] },
-  { id: 'honest', name: 'Honest', cost: 20, category: TraitCategory.PERSONALITY, description: '+2 Diplomacy, -4 Intrigue', opposites: ['deceitful'] },
-  { id: 'diligent', name: 'Diligent', cost: 60, category: TraitCategory.PERSONALITY, description: '+2 All Stats, +20% Stress Gain', opposites: ['lazy'] },
-  { id: 'lazy', name: 'Lazy', cost: -20, category: TraitCategory.PERSONALITY, description: '-1 All Stats, -15% Stress Gain', opposites: ['diligent'] },
-  { id: 'fickle', name: 'Fickle', cost: 20, category: TraitCategory.PERSONALITY, description: '+1 Diplomacy, +1 Intrigue, -1 Stewardship', opposites: ['stubborn'] },
-  { id: 'stubborn', name: 'Stubborn', cost: 20, category: TraitCategory.PERSONALITY, description: '+3 Stewardship, -3 Diplomacy', opposites: ['fickle'] },
-  { id: 'forgiving', name: 'Forgiving', cost: 15, category: TraitCategory.PERSONALITY, description: '+2 Diplomacy, -2 Intrigue', opposites: ['vengeful'] },
-  { id: 'vengeful', name: 'Vengeful', cost: 35, category: TraitCategory.PERSONALITY, description: '+2 Intrigue, +2 Prowess', opposites: ['forgiving'] },
-  { id: 'generous', name: 'Generous', cost: 15, category: TraitCategory.PERSONALITY, description: '+3 Diplomacy, -10% Income', opposites: ['greedy'] },
-  { id: 'greedy', name: 'Greedy', cost: 40, category: TraitCategory.PERSONALITY, description: '+15% Income, -2 Diplomacy', opposites: ['generous'] },
-  { id: 'gregarious', name: 'Gregarious', cost: 30, category: TraitCategory.PERSONALITY, description: '+2 Diplomacy, +5 Attraction', opposites: ['shy'] },
-  { id: 'shy', name: 'Shy', cost: -20, category: TraitCategory.PERSONALITY, description: '-2 Diplomacy, -5 Attraction, Less Personal Scheme Power', opposites: ['gregarious'] },
-  { id: 'gluttonous', name: 'Gluttonous', cost: -10, category: TraitCategory.PERSONALITY, description: '-2 Stewardship, -10 Attraction', opposites: ['temperate'] },
-  { id: 'temperate', name: 'Temperate', cost: 40, category: TraitCategory.PERSONALITY, description: '+2 Stewardship, +Small Health Boost', opposites: ['gluttonous'] },
-  { id: 'impatient', name: 'Impatient', cost: 15, category: TraitCategory.PERSONALITY, description: '+20% Scheme Speed, -1 Learning', opposites: ['patient'] },
-  { id: 'patient', name: 'Patient', cost: 35, category: TraitCategory.PERSONALITY, description: '+2 Learning, +10 Hostile Scheme Resistance', opposites: ['impatient'] },
-  { id: 'just', name: 'Just', cost: 40, category: TraitCategory.PERSONALITY, description: '+2 Stewardship, +1 Learning', opposites: ['arbitrary'] },
-  { id: 'arbitrary', name: 'Arbitrary', cost: 10, category: TraitCategory.PERSONALITY, description: '+3 Intrigue, -2 Stewardship', opposites: ['just'] },
-  { id: 'paranoid', name: 'Paranoid', cost: 10, category: TraitCategory.PERSONALITY, description: '+3 Intrigue, -1 Diplomacy, +100% Stress Gain', opposites: ['trusting'] },
-  { id: 'trusting', name: 'Trusting', cost: 10, category: TraitCategory.PERSONALITY, description: '+2 Diplomacy, -2 Intrigue', opposites: ['paranoid'] },
+  {
+    name: "Amateurish Plotter",
+    id: "amateurish_plotter",
+    cost: 0,
+    description: "+0 Intrigue",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Flamboyant Trickster",
+    id: "flamboyant_trickster",
+    cost: 20,
+    description: "+2 Intrigue",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Intricate Webweaver",
+    id: "intricate_webweaver",
+    cost: 40,
+    description: "+4 Intrigue, +10% Monthly Intrigue Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Elusive Shadow",
+    id: "elusive_shadow",
+    cost: 80,
+    description: "+6 Intrigue, +20% Monthly Intrigue Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Conniving Puppetmaster",
+    id: "conniving_puppetmaster",
+    cost: 160,
+    description: "+8 Intrigue, +1 Diplomacy, +30% Monthly Intrigue Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
 
-  // --- CONGENITAL ---
-  // Intelligence
-  { id: 'intellect_good_3', name: 'Genius', cost: 240, category: TraitCategory.CONGENITAL, description: '+5 All Stats, +30% Lifestyle XP', opposites: ['intellect_good_1', 'intellect_good_2', 'intellect_bad_1', 'intellect_bad_2', 'intellect_bad_3'] },
-  { id: 'intellect_good_2', name: 'Intelligent', cost: 160, category: TraitCategory.CONGENITAL, description: '+3 All Stats, +20% Lifestyle XP', opposites: ['intellect_good_1', 'intellect_good_3', 'intellect_bad_1', 'intellect_bad_2', 'intellect_bad_3'] },
-  { id: 'intellect_good_1', name: 'Quick', cost: 80, category: TraitCategory.CONGENITAL, description: '+1 All Stats, +10% Lifestyle XP', opposites: ['intellect_good_2', 'intellect_good_3', 'intellect_bad_1', 'intellect_bad_2', 'intellect_bad_3'] },
-  { id: 'intellect_bad_1', name: 'Slow', cost: -40, category: TraitCategory.CONGENITAL, description: '-2 All Stats', opposites: ['intellect_good_1', 'intellect_good_2', 'intellect_good_3', 'intellect_bad_2', 'intellect_bad_3'] },
-  { id: 'intellect_bad_2', name: 'Stupid', cost: -80, category: TraitCategory.CONGENITAL, description: '-4 All Stats', opposites: ['intellect_good_1', 'intellect_good_2', 'intellect_good_3', 'intellect_bad_1', 'intellect_bad_3'] },
-  { id: 'intellect_bad_3', name: 'Imbecile', cost: -120, category: TraitCategory.CONGENITAL, description: '-8 All Stats', opposites: ['intellect_good_1', 'intellect_good_2', 'intellect_good_3', 'intellect_bad_1', 'intellect_bad_2'] },
-  
-  // Physique
-  { id: 'physique_good_3', name: 'Herculean / Amazonian', cost: 180, category: TraitCategory.CONGENITAL, description: '+8 Prowess, +1.0 Health', opposites: ['physique_good_1', 'physique_good_2', 'physique_bad_1', 'physique_bad_2', 'physique_bad_3'] },
-  { id: 'physique_good_2', name: 'Robust', cost: 120, category: TraitCategory.CONGENITAL, description: '+4 Prowess, +0.5 Health', opposites: ['physique_good_1', 'physique_good_3', 'physique_bad_1', 'physique_bad_2', 'physique_bad_3'] },
-  { id: 'physique_good_1', name: 'Hale', cost: 60, category: TraitCategory.CONGENITAL, description: '+2 Prowess, +0.25 Health', opposites: ['physique_good_2', 'physique_good_3', 'physique_bad_1', 'physique_bad_2', 'physique_bad_3'] },
-  { id: 'physique_bad_1', name: 'Delicate', cost: -40, category: TraitCategory.CONGENITAL, description: '-2 Prowess, -0.25 Health', opposites: ['physique_good_1', 'physique_good_2', 'physique_good_3', 'physique_bad_2', 'physique_bad_3'] },
-  { id: 'physique_bad_2', name: 'Frail', cost: -80, category: TraitCategory.CONGENITAL, description: '-4 Prowess, -0.5 Health', opposites: ['physique_good_1', 'physique_good_2', 'physique_good_3', 'physique_bad_1', 'physique_bad_3'] },
-  { id: 'physique_bad_3', name: 'Feeble', cost: -120, category: TraitCategory.CONGENITAL, description: '-8 Prowess, -1.0 Health', opposites: ['physique_good_1', 'physique_good_2', 'physique_good_3', 'physique_bad_1', 'physique_bad_2'] },
+  {
+    name: "Conscientious Scribe",
+    id: "conscientious_scribe",
+    cost: 0,
+    description: "+0 Learning",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Insightful Thinker",
+    id: "insightful_thinker",
+    cost: 20,
+    description: "+2 Learning",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Astute Intellectual",
+    id: "astute_intellectual",
+    cost: 40,
+    description: "+4 Learning, +10% Monthly Learning Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Mastermind Philosopher",
+    id: "mastermind_philosopher",
+    cost: 80,
+    description: "+6 Learning, +20% Monthly Learning Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Erudite Oracle",
+    id: "erudite_oracle",
+    cost: 160,
+    description: "+8 Learning, +1 Stewardship, +30% Monthly Learning Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
 
-  // Beauty
-  { id: 'beauty_good_3', name: 'Beautiful', cost: 120, category: TraitCategory.CONGENITAL, description: '+3 Diplomacy, +30 Attraction, +20% Fertility', opposites: ['beauty_good_1', 'beauty_good_2', 'beauty_bad_1', 'beauty_bad_2', 'beauty_bad_3'] },
-  { id: 'beauty_good_2', name: 'Handsome / Pretty', cost: 80, category: TraitCategory.CONGENITAL, description: '+2 Diplomacy, +20 Attraction, +10% Fertility', opposites: ['beauty_good_1', 'beauty_good_3', 'beauty_bad_1', 'beauty_bad_2', 'beauty_bad_3'] },
-  { id: 'beauty_good_1', name: 'Comely', cost: 40, category: TraitCategory.CONGENITAL, description: '+1 Diplomacy, +10 Attraction, +5% Fertility', opposites: ['beauty_good_2', 'beauty_good_3', 'beauty_bad_1', 'beauty_bad_2', 'beauty_bad_3'] },
-  { id: 'beauty_bad_1', name: 'Homely', cost: -40, category: TraitCategory.CONGENITAL, description: '-1 Diplomacy, -10 Attraction', opposites: ['beauty_good_1', 'beauty_good_2', 'beauty_good_3', 'beauty_bad_2', 'beauty_bad_3'] },
-  { id: 'beauty_bad_2', name: 'Ugly', cost: -80, category: TraitCategory.CONGENITAL, description: '-2 Diplomacy, -20 Attraction', opposites: ['beauty_good_1', 'beauty_good_2', 'beauty_good_3', 'beauty_bad_1', 'beauty_bad_3'] },
-  { id: 'beauty_bad_3', name: 'Hideous', cost: -120, category: TraitCategory.CONGENITAL, description: '-3 Diplomacy, -30 Attraction', opposites: ['beauty_good_1', 'beauty_good_2', 'beauty_good_3', 'beauty_bad_1', 'beauty_bad_2'] },
+  {
+    name: "Bumbling Squire",
+    id: "bumbling_squire",
+    cost: 0,
+    description: "-2 Prowess",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Confident Knight",
+    id: "confident_knight",
+    cost: 15,
+    description: "+2 Prowess",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Formidable Banneret",
+    id: "formidable_banneret",
+    cost: 40,
+    description: "+4 Prowess, +10% Monthly Martial Lifestyle Experience",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
+  {
+    name: "Famous Champion",
+    id: "famous_champion",
+    cost: 80,
+    description: "+6 Prowess, +20% Monthly Martial Lifestyle Experience, +0.5 Prestige/month",
+    category: TraitCategory.EDUCATION,
+    opposites: []
+  },
 
-  // Special Congenital
-  { id: 'pure_blooded', name: 'Pure-Blooded', cost: 500, category: TraitCategory.CONGENITAL, description: '+0.25 Health, +10% Fertility, Reduced Inbreeding Chance' },
-  { id: 'fecund', name: 'Fecund', cost: 140, category: TraitCategory.CONGENITAL, description: '+50% Fertility, +5 Years Life Expectancy' },
-  { id: 'albino', name: 'Albino', cost: 60, category: TraitCategory.CONGENITAL, description: '+15 Natural Dread, -10 General Opinion' },
-  { id: 'giant', name: 'Giant', cost: 40, category: TraitCategory.CONGENITAL, description: '+6 Prowess, -5% Health, +20 Dread' },
-  { id: 'dwarf', name: 'Dwarf', cost: -40, category: TraitCategory.CONGENITAL, description: '-4 Prowess, +20 Same Opinion' },
-  { id: 'scaly', name: 'Scaly', cost: -60, category: TraitCategory.CONGENITAL, description: '-10 Attraction, +10 Dread' },
-  { id: 'clubfooted', name: 'Clubfooted', cost: -20, category: TraitCategory.CONGENITAL, description: '-2 Prowess, -5 Attraction' },
-  { id: 'hunchbacked', name: 'Hunchbacked', cost: -30, category: TraitCategory.CONGENITAL, description: '-10 Prowess, -30 Attraction' },
-  { id: 'lisping', name: 'Lisping', cost: -10, category: TraitCategory.CONGENITAL, description: '-2 Diplomacy, -5 Attraction' },
-  { id: 'stuttering', name: 'Stuttering', cost: -10, category: TraitCategory.CONGENITAL, description: '-2 Diplomacy' },
-  { id: 'inbred', name: 'Inbred', cost: -100, category: TraitCategory.CONGENITAL, description: '-5 All Stats, -50% Fertility, -1.5 Health' },
-  { id: 'bleeder', name: 'Bleeder', cost: -80, category: TraitCategory.CONGENITAL, description: '-1.5 Health' },
-  { id: 'wheezing', name: 'Wheezing', cost: -60, category: TraitCategory.CONGENITAL, description: '-0.75 Health' },
-  { id: 'spindly', name: 'Spindly', cost: -40, category: TraitCategory.CONGENITAL, description: '-0.5 Health' },
+  // --- Congenital Traits ---
+  {
+    name: "Hideous",
+    id: "hideous",
+    cost: -30,
+    description: "-3 Diplomacy, -30% Fertility, -30 Attraction Opinion, Extreme Facial Characteristics",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Ugly", "Homely", "Comely", "Pretty", "Handsome", "Beautiful"]
+  },
+  {
+    name: "Ugly",
+    id: "ugly",
+    cost: -20,
+    description: "-2 Diplomacy, -20% Fertility, -20 Attraction Opinion, Extreme Facial Characteristics",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Hideous", "Homely", "Comely", "Pretty", "Handsome", "Beautiful"]
+  },
+  {
+    name: "Homely",
+    id: "homely",
+    cost: -10,
+    description: "-1 Diplomacy, -10% Fertility, -10 Attraction Opinion, Extreme Facial Characteristics",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Hideous", "Ugly", "Comely", "Pretty", "Handsome", "Beautiful"]
+  },
+  {
+    name: "Comely",
+    id: "comely",
+    cost: 40,
+    description: "+1 Diplomacy, +10% Fertility, +10 Attraction Opinion, Slower Portrait Aging",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Hideous", "Ugly", "Homely", "Pretty", "Handsome", "Beautiful"]
+  },
+  {
+    name: "Pretty",
+    id: "pretty",
+    cost: 80,
+    description: "+2 Diplomacy, +20% Fertility, +20 Attraction Opinion, Slower Portrait Aging",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Hideous", "Ugly", "Homely", "Comely", "Handsome", "Beautiful"]
+  },
+  {
+    name: "Beautiful",
+    id: "beautiful",
+    cost: 120,
+    description: "+3 Diplomacy, +30% Fertility, +30 Attraction Opinion, Slower Portrait Aging",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Hideous", "Ugly", "Homely", "Comely", "Pretty", "Handsome"]
+  },
+  {
+    name: "Handsome",
+    id: "handsome",
+    cost: 80,
+    description: "+2 Diplomacy, +20% Fertility, +20 Attraction Opinion, Slower Portrait Aging",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Hideous", "Ugly", "Homely", "Comely", "Pretty", "Beautiful"]
+  },
 
-  // --- LIFESTYLE (Final Perks) ---
-  { id: 'diplomat', name: 'Diplomat', cost: 50, category: TraitCategory.LIFESTYLE, description: '+3 Diplomacy, +20 Independent Ruler Opinion' },
-  { id: 'august', name: 'August', cost: 50, category: TraitCategory.LIFESTYLE, description: '+2 Diplomacy, +1 Martial, +1 Prestige/m' },
-  { id: 'family_first', name: 'Patriarch / Matriarch', cost: 50, category: TraitCategory.LIFESTYLE, description: '+2 Diplomacy, +15 House Opinion, +20% Fertility' },
-  
-  { id: 'strategist', name: 'Strategist', cost: 50, category: TraitCategory.LIFESTYLE, description: '+1 Martial, +1 Diplomacy, +Enemy Fatalities' },
-  { id: 'overseer', name: 'Overseer', cost: 50, category: TraitCategory.LIFESTYLE, description: '+2 Martial, +2 Stewardship, +Control Growth' },
-  { id: 'gallant', name: 'Gallant', cost: 50, category: TraitCategory.LIFESTYLE, description: '+2 Martial, +4 Prowess, +20 Attraction' },
-  
-  { id: 'architect', name: 'Architect', cost: 50, category: TraitCategory.LIFESTYLE, description: '+2 Stewardship, -15% Build Time/Cost' },
-  { id: 'administrator', name: 'Administrator', cost: 50, category: TraitCategory.LIFESTYLE, description: '+1 Stewardship, +1 Diplomacy, +Vassal Opinion' },
-  { id: 'avaricious', name: 'Avaricious', cost: 50, category: TraitCategory.LIFESTYLE, description: '+2 Stewardship, +15% Holding Taxes' },
-  
-  { id: 'schemer', name: 'Schemer', cost: 50, category: TraitCategory.LIFESTYLE, description: '+5 Intrigue, +25% Scheme Power' },
-  { id: 'seducer', name: 'Seducer', cost: 50, category: TraitCategory.LIFESTYLE, description: '+3 Intrigue, +40 Attraction, +20% Fertility' },
-  { id: 'torturer', name: 'Torturer', cost: 50, category: TraitCategory.LIFESTYLE, description: '+3 Intrigue, +4 Prowess, +50% Dread Gain' },
-  
-  { id: 'whole_of_body', name: 'Whole of Body', cost: 80, category: TraitCategory.LIFESTYLE, description: '+0.5 Health, +25% Stress Loss, +50% Fertility' },
-  { id: 'scholar', name: 'Scholar', cost: 50, category: TraitCategory.LIFESTYLE, description: '+5 Learning, +15 Hostile Scheme Success, +15 Resistance' },
-  { id: 'theologian', name: 'Theologian', cost: 50, category: TraitCategory.LIFESTYLE, description: '+3 Learning, +20% Piety' },
+  {
+    name: "Imbecile",
+    id: "imbecile",
+    cost: -45,
+    description: "-8 All Stats, -30% Lifestyle XP",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Stupid", "Slow", "Quick", "Intelligent", "Genius"]
+  },
+  {
+    name: "Stupid",
+    id: "stupid",
+    cost: -30,
+    description: "-4 All Stats, -20% Lifestyle XP",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Imbecile", "Slow", "Quick", "Intelligent", "Genius"]
+  },
+  {
+    name: "Slow",
+    id: "slow",
+    cost: -15,
+    description: "-2 All Stats, -10% Lifestyle XP",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Imbecile", "Stupid", "Quick", "Intelligent", "Genius"]
+  },
+  {
+    name: "Quick",
+    id: "quick",
+    cost: 80,
+    description: "+1 All Stats, +10% Lifestyle XP",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Imbecile", "Stupid", "Slow", "Intelligent", "Genius"]
+  },
+  {
+    name: "Intelligent",
+    id: "intelligent",
+    cost: 160,
+    description: "+3 All Stats, +20% Lifestyle XP",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Imbecile", "Stupid", "Slow", "Quick", "Genius"]
+  },
+  {
+    name: "Genius",
+    id: "genius",
+    cost: 240,
+    description: "+5 All Stats, +30% Lifestyle XP",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Imbecile", "Stupid", "Slow", "Quick", "Intelligent"]
+  },
 
-  // --- COMMANDER ---
-  { id: 'aggressive_attacker', name: 'Aggressive Attacker', cost: 60, category: TraitCategory.COMMANDER, description: '+25% Enemy Fatalities' },
-  { id: 'unyielding_defender', name: 'Unyielding Defender', cost: 60, category: TraitCategory.COMMANDER, description: '-25% Friendly Fatalities' },
-  { id: 'logistician', name: 'Logistician', cost: 40, category: TraitCategory.COMMANDER, description: '+Supply Limit Duration' },
-  { id: 'military_engineer', name: 'Military Engineer', cost: 40, category: TraitCategory.COMMANDER, description: '-30% Siege Duration' },
-  { id: 'flexible_leader', name: 'Flexible Leader', cost: 40, category: TraitCategory.COMMANDER, description: '-50% Enemy Defensive Advantage' },
-  { id: 'reaver', name: 'Reaver', cost: 40, category: TraitCategory.COMMANDER, description: '+100% Raid Speed, -75% Attrition' },
-  { id: 'holy_warrior', name: 'Holy Warrior', cost: 60, category: TraitCategory.COMMANDER, description: '+10 Advantage vs Hostile Faiths, +20% Piety from Battles' },
-  { id: 'organizer', name: 'Organizer', cost: 40, category: TraitCategory.COMMANDER, description: '+25% Movement Speed' },
-  
-  // --- PHYSICAL & HEALTH ---
-  { id: 'strong', name: 'Strong', cost: 80, category: TraitCategory.PHYSICAL, description: '+4 Prowess, +0.25 Health' },
-  { id: 'shrewd', name: 'Shrewd', cost: 60, category: TraitCategory.PHYSICAL, description: '+2 All Stats' },
-  { id: 'scarred', name: 'Scarred', cost: 20, category: TraitCategory.PHYSICAL, description: '+0.1 Prestige, +5 Attraction' },
-  { id: 'one_eyed', name: 'One-Eyed', cost: -30, category: TraitCategory.PHYSICAL, description: '-2 Prowess, +1 Dread, -10 Attraction' },
-  { id: 'one_legged', name: 'One-Legged', cost: -40, category: TraitCategory.PHYSICAL, description: '-4 Prowess, -10 Attraction' },
-  { id: 'disfigured', name: 'Disfigured', cost: -60, category: TraitCategory.PHYSICAL, description: '-4 Diplomacy, -20 Attraction' },
-  { id: 'maimed', name: 'Maimed', cost: -100, category: TraitCategory.PHYSICAL, description: '-6 Prowess, -2 Health' },
-  { id: 'wonded_1', name: 'Wounded', cost: -20, category: TraitCategory.PHYSICAL, description: '-1 Prowess, -0.25 Health' },
-  
-  // --- INFAMOUS / OTHER ---
-  { id: 'kinslayer_1', name: 'Familial Kinslayer', cost: -20, category: TraitCategory.INFAMOUS, description: '-5 Dynasty Opinion' },
-  { id: 'kinslayer_2', name: 'Dynastic Kinslayer', cost: -40, category: TraitCategory.INFAMOUS, description: '-10 Dynasty Opinion' },
-  { id: 'kinslayer_3', name: 'Kinslayer', cost: -60, category: TraitCategory.INFAMOUS, description: '-15 Dynasty Opinion' },
-  { id: 'deviant', name: 'Deviant', cost: 20, category: TraitCategory.INFAMOUS, description: '+25% Stress Loss, Crime (General)' },
-  { id: 'cannibal', name: 'Cannibal', cost: 20, category: TraitCategory.INFAMOUS, description: '+2 Prowess, +15% Stress Loss, +20 Dread' },
-  { id: 'sodomite', name: 'Sodomite', cost: -20, category: TraitCategory.INFAMOUS, description: 'Same-Sex Relations' },
-  { id: 'adulterer', name: 'Adulterer', cost: -20, category: TraitCategory.INFAMOUS, description: '-10 General Opinion' },
-  { id: 'fornicator', name: 'Fornicator', cost: -10, category: TraitCategory.INFAMOUS, description: '-5 General Opinion' },
-  { id: 'murderer', name: 'Murderer', cost: -20, category: TraitCategory.INFAMOUS, description: '-15 General Opinion' },
-  { id: 'excommunicated', name: 'Excommunicated', cost: -50, category: TraitCategory.INFAMOUS, description: '-50 General Opinion (Same Faith)' },
-  
-  // --- COPING ---
-  { id: 'drunkard', name: 'Drunkard', cost: -20, category: TraitCategory.COPING, description: '-2 Stewardship, -2 Prowess, +20% Stress Loss' },
-  { id: 'hashishiyah', name: 'Hashishiyah', cost: -20, category: TraitCategory.COPING, description: '-2 Stewardship, +20% Stress Loss, +1 Learning' },
-  { id: 'flagellant', name: 'Flagellant', cost: -20, category: TraitCategory.COPING, description: '-1 Prowess, +20% Stress Loss, -0.15 Health' },
-  { id: 'comfort_eater', name: 'Comfort Eater', cost: -20, category: TraitCategory.COPING, description: '+20% Stress Loss, -10 Attraction' },
-  { id: 'inappetetic', name: 'Inappetetic', cost: -20, category: TraitCategory.COPING, description: '+20% Stress Loss, -1 Diplomacy' },
-  { id: 'rakish', name: 'Rakish', cost: -20, category: TraitCategory.COPING, description: '+20% Stress Loss, -1 Diplomacy' },
-  { id: 'reclusive', name: 'Reclusive', cost: -20, category: TraitCategory.COPING, description: '+20% Stress Loss, -2 Diplomacy' },
-  { id: 'contrite', name: 'Contrite', cost: -10, category: TraitCategory.COPING, description: '+20% Stress Loss, -1 Intrigue' },
-  { id: 'improvident', name: 'Improvident', cost: -20, category: TraitCategory.COPING, description: '+20% Stress Loss, -15% Income' },
-  
-  // --- OTHER ---
-  { id: 'viking', name: 'Viking / Raider', cost: 60, category: TraitCategory.OTHER, description: '+2 Martial, +0.3 Prestige/m' },
-  { id: 'varangian', name: 'Varangian', cost: 40, category: TraitCategory.OTHER, description: '+1 Martial, +2 Prowess, +2 Diplomacy' },
-  { id: 'berserker', name: 'Berserker', cost: 80, category: TraitCategory.OTHER, description: '+2 Martial, +5 Prowess' },
-  { id: 'adventurer', name: 'Adventurer', cost: 50, category: TraitCategory.OTHER, description: '+1 Martial, +1 Prowess, +1 Diplomacy' },
-  { id: 'pilgrim', name: 'Pilgrim', cost: 30, category: TraitCategory.OTHER, description: '+10% Piety, +5 Same Faith Opinion' },
-  { id: 'crusader_king', name: 'Crusader', cost: 50, category: TraitCategory.OTHER, description: '+2 Martial, +15 Clergy Opinion' },
-  { id: 'sayyid', name: 'Sayyid', cost: 60, category: TraitCategory.OTHER, description: '+5 Same Faith Opinion' },
-  { id: 'born_in_the_purple', name: 'Born in the Purple', cost: 60, category: TraitCategory.OTHER, description: '+0.5 Prestige/m, +5 Vassal Opinion' },
-  { id: 'augustus', name: 'Augustus', cost: 60, category: TraitCategory.OTHER, description: '+0.5 Prestige/m, +10 Vassal Opinion' },
-  { id: 'witch', name: 'Witch', cost: 60, category: TraitCategory.OTHER, description: '+1 Intrigue, +1 Learning, +Health' }
+  {
+    name: "Feeble",
+    id: "feeble",
+    cost: -45,
+    description: "-6 Prowess, -1 Health, -10 Attraction",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Frail", "Delicate", "Hale", "Robust", "Herculean", "Amazonian"]
+  },
+  {
+    name: "Frail",
+    id: "frail",
+    cost: -30,
+    description: "-4 Prowess, -0.5 Health, -5 Attraction",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Feeble", "Delicate", "Hale", "Robust", "Herculean", "Amazonian"]
+  },
+  {
+    name: "Delicate",
+    id: "delicate",
+    cost: -15,
+    description: "-2 Prowess, -0.25 Health",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Feeble", "Frail", "Hale", "Robust", "Herculean", "Amazonian"]
+  },
+  {
+    name: "Hale",
+    id: "hale",
+    cost: 60,
+    description: "+2 Prowess, +0.25 Health, +5 Attraction",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Feeble", "Frail", "Delicate", "Robust", "Herculean", "Amazonian"]
+  },
+  {
+    name: "Robust",
+    id: "robust",
+    cost: 120,
+    description: "+4 Prowess, +0.5 Health, +10 Attraction",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Feeble", "Frail", "Delicate", "Hale", "Herculean", "Amazonian"]
+  },
+  {
+    name: "Herculean",
+    id: "herculean",
+    cost: 180,
+    description: "+8 Prowess, +1 Health, +15 Attraction",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Feeble", "Frail", "Delicate", "Hale", "Robust", "Amazonian"]
+  },
+  {
+    name: "Amazonian",
+    id: "amazonian",
+    cost: 180,
+    description: "+8 Prowess, +1 Health, +15 Attraction",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Feeble", "Frail", "Delicate", "Hale", "Robust", "Herculean"]
+  },
+
+  {
+    name: "Albino",
+    id: "albino",
+    cost: 120,
+    description: "Visual Albinism, +15 Natural Dread, -10 General Opinion",
+    category: TraitCategory.CONGENITAL
+  },
+  {
+    name: "Giant",
+    id: "giant",
+    cost: 60,
+    description: "+6 Prowess, +20% Men-at-Arms Damage, +10 Attraction, -0.25 Health, -1% Speed",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Dwarf"]
+  },
+  {
+    name: "Dwarf",
+    id: "dwarf",
+    cost: 40,
+    description: "+20% Same Trait Opinion, -2 Prowess, -20 Attraction",
+    category: TraitCategory.CONGENITAL,
+    opposites: ["Giant"]
+  },
+  {
+    name: "Fecund",
+    id: "fecund",
+    cost: 140,
+    description: "+50% Fertility, +5 Years Life Expectancy",
+    category: TraitCategory.CONGENITAL
+  },
+  {
+    name: "Pure-blooded",
+    id: "pure_blooded",
+    cost: 140,
+    description: "+10% Fertility, -50% Inbreeding Chance, +15 Attraction Opinion",
+    category: TraitCategory.CONGENITAL
+  },
+  {
+    name: "Scaly",
+    id: "scaly",
+    cost: 100,
+    description: "+10 Natural Dread, -20 Attraction, -10 General Opinion",
+    category: TraitCategory.CONGENITAL
+  },
+
+  // --- Lifestyle & Activity Traits ---
+  {
+    name: "Aspiring Blademaster",
+    id: "aspiring_blademaster",
+    cost: 0,
+    description: "+3 Prowess, +0.25 Disease Resistance",
+    category: TraitCategory.LIFESTYLE
+  },
+  {
+    name: "Eager Reveler",
+    id: "eager_reveler",
+    cost: 0,
+    description: "+1 Intrigue, +5 Courtly Vassal Opinion",
+    category: TraitCategory.LIFESTYLE
+  },
+  {
+    name: "Novice Physician",
+    id: "novice_physician",
+    cost: 0,
+    description: "+1 Learning, +0.25 Disease Resistance",
+    category: TraitCategory.LIFESTYLE
+  },
+  {
+    name: "Pilgrim",
+    id: "pilgrim",
+    cost: 0,
+    description: "+5% Monthly Piety, +5 Travel Speed, +5 Travel Safety",
+    category: TraitCategory.LIFESTYLE
+  },
+  {
+    name: "Hunter",
+    id: "hunter",
+    cost: 0,
+    description: "+1 Prowess, +5% Stress Loss, +10 Same Trait Opinion",
+    category: TraitCategory.LIFESTYLE
+  },
+  {
+    name: "Falconer",
+    id: "falconer",
+    cost: 50,
+    description: "+1 Stewardship, +1 Learning, +0.25 Monthly Prestige",
+    category: TraitCategory.LIFESTYLE
+  },
+  {
+    name: "Traveler",
+    id: "traveler",
+    cost: 0,
+    description: "+1 Diplomacy, +10% Wandering Lifestyle Experience, +5 Same Trait Opinion",
+    category: TraitCategory.LIFESTYLE
+  },
+  {
+    name: "Viking",
+    id: "viking",
+    cost: 40,
+    description: "+2 Martial, +3 Prowess, +0.3 Prestige/month, +15% Men-at-arms Maintenance",
+    category: TraitCategory.LIFESTYLE
+  },
+  {
+    name: "Varangian",
+    id: "varangian",
+    cost: 60,
+    description: "+2 Martial, +4 Prowess, +1 Diplomacy, +0.5 Prestige/month",
+    category: TraitCategory.LIFESTYLE
+  },
+
+  // --- Other ---
+  {
+    name: "Immortal",
+    id: "immortal",
+    cost: 10000,
+    description: "Grants immortality. Character never ages or dies of old age.",
+    category: TraitCategory.OTHER
+  },
+
+  // --- Crusader / Faith ---
+  {
+    name: "Crusader",
+    id: "crusader",
+    cost: 20,
+    description: "+2 Martial, +1 Prowess, +15 Clergy Opinion, +0.3 Piety/month",
+    category: TraitCategory.OTHER
+  },
+
+  // --- Commander ---
+  {
+    name: "Aggressive Attacker",
+    id: "aggressive_attacker",
+    cost: 40,
+    description: "+25% Enemy Fatalities",
+    category: TraitCategory.COMMANDER
+  },
+  {
+    name: "Unyielding Defender",
+    id: "unyielding_defender",
+    cost: 40,
+    description: "+25% Friendly Fatalities",
+    category: TraitCategory.COMMANDER
+  },
+  {
+    name: "Logistician",
+    id: "logistician",
+    cost: 40,
+    description: "+100% Supply Limit",
+    category: TraitCategory.COMMANDER
+  },
+  {
+    name: "Holy Warrior",
+    id: "holy_warrior",
+    cost: 40,
+    description: "+10 Advantage vs Hostile Faith",
+    category: TraitCategory.COMMANDER
+  }
 ];
+

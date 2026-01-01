@@ -1,7 +1,7 @@
 
 import React, { useMemo } from 'react';
 import { GeneDefinition } from '../types';
-import GeneInfo from './GeneInfo';
+import GeneInfo from './DnaForge/GeneInfo';
 
 interface GeneSliderProps {
   definition: GeneDefinition;

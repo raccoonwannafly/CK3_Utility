@@ -1,0 +1,17 @@
+
+# Ver 1.3.1 - Gallery UX & Import Fixes
+
+## Gallery Hub
+*   **Visual Overhaul**: 
+    *   Character names are now significantly larger and more prominent in the Details view.
+    *   Culture, Religion, and Prestige/Piety stats have been restyled for better readability with higher contrast backgrounds.
+*   **Image Navigation**: 
+    *   Added **Previous/Next** navigation arrows in the Full Screen image view.
+    *   Added a **Quick Zoom** button to the thumbnail strip, allowing you to view secondary images in full screen without setting them as the main portrait.
+*   **Data Entry**:
+    *   Added **Dynasty Motto** field to the character creator.
+    *   Added **Tags** support (press Enter to add) for better categorization.
+
+## Bug Fixes
+*   **JSON Import**: Fixed an issue where importing legacy JSON files or files from certain environments failed silently. The parser is now more robust.
+*   **File Input**: Improved the file selection reset mechanism to allow re-importing the same file immediately if needed.

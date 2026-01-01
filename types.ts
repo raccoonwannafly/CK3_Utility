@@ -21,7 +21,7 @@ export interface GeneDefinition {
   min: number;
   max: number;
   // Raw data references for context
-  rawAttribute?: string; 
+  rawAttribute?: string;
   default?: number;
   templates?: GeneTemplate[];
 }
@@ -101,35 +101,48 @@ export interface Trait {
 }
 
 export interface StoredCharacter {
-    id: string;
-    name: string;
-    culture: string;
-    religion: string;
-    race?: string;
-    traits: string[]; // trait IDs
-    dna: string;
-    images: string[];
-    bio: string;
-    tags: string[];
-    createdAt: string;
-    dynastyMotto?: string;
-    goal?: string;
-    category?: 'historical' | 'custom';
-    collection?: string; // New field for grouping
+  id: string;
+  name: string;
+  birthName?: string;
+  titles?: string[];
+  culture: string;
+  religion: string;
+  race?: string;
+  traits: string[]; // trait IDs
+  dna: string; // Ruler Designer DNA
+  persistentDna?: string; // Save File DNA (Base64)
+  images: string[];
+  bio: string; // The Saga
+  events?: string; // The Annals
+  achievements?: string; // Deeds & Conquests
+  dateStart?: string; // Ascension
+  dateBirth?: string; // Nativity
+  tags: string[];
+  createdAt: string;
+  dynastyMotto?: string;
+  dynastyName?: string;
+  houseName?: string;
+  prestigeLevel?: string; // Index 0-4
+  pietyLevel?: string; // Index 0-4
+  goal?: string;
+  category?: 'historical' | 'custom';
+  collection?: string; // New field for grouping
+  deleted?: boolean; // Soft delete flag for historical overrides or safe deletion
+  updatedAt?: string;
 }
 
 export interface CharacterBuild {
-    name: string;
-    culture: string;
-    religion: string;
-    goal: string;
-    traits: string[];
+  name: string;
+  culture: string;
+  religion: string;
+  goal: string;
+  traits: string[];
 }
 
 export interface AdvisorResponse {
-    backstory: string;
-    strategy: string;
-    dynastyMotto: string;
+  backstory: string;
+  strategy: string;
+  dynastyMotto: string;
 }
 
 export type DnaData = Record<string, number[]>;

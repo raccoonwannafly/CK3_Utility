@@ -50,33 +50,63 @@ export const importGallery = async (file: File): Promise<StoredCharacter[]> => {
     reader.onload = (event) => {
       try {
         const text = event.target?.result as string;
-        const json = JSON.parse(text);
-
-        // Basic Validation
-        if (!json || typeof json !== 'object') {
-            throw new Error("Invalid file format.");
+        let json; // Must be let, not const, as it is assigned in the try block
+        
+        try {
+            json = JSON.parse(text);
+        } catch (e) {
+            throw new Error("File contains invalid JSON data.");
         }
 
         // Handle Legacy Array (if user tries to import a raw array from older versions)
-        let chars: StoredCharacter[] = [];
+        let chars: any[] = [];
         if (Array.isArray(json)) {
+            // Direct array import (Legacy support)
             chars = json;
-        } else if (json.meta?.app === "CK3_ROYAL_UTILITY" && Array.isArray(json.data)) {
-            chars = json.data;
+        } else if (json && typeof json === 'object') {
+            // Standard format
+            if (Array.isArray(json.data)) {
+                 chars = json.data;
+            } else if (json.meta && !json.data) {
+                 throw new Error("JSON has meta but no data array.");
+            } else {
+                 // Try to see if it's a single character object?
+                 // Or maybe a different format. 
+                 // For now, if it's an object but not our format, assume it might be a key-value store of chars
+                 // This is a guess, but safe to fail if not found.
+                 throw new Error("Unknown file format. Expected an array or CK3 Utility snapshot.");
+            }
         } else {
-            throw new Error("Unknown file format. Is this a CK3 Utility export?");
+            throw new Error("Invalid file content.");
         }
 
         // Data Sanitization & Migration
-        const validChars = chars.map(c => ({
+        const validChars: StoredCharacter[] = chars.filter(c => c && typeof c === 'object' && (c.name || c.dna)).map(c => ({
             ...c,
             // Regenerate ID to ensure no database conflicts on merge
             id: `imported_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            name: c.name || "Unknown Imported",
             // Ensure array fields exist
             images: Array.isArray(c.images) ? c.images : [],
             tags: Array.isArray(c.tags) ? c.tags : [],
             traits: Array.isArray(c.traits) ? c.traits : [],
+            // Ensure strings
+            culture: c.culture || "",
+            religion: c.religion || "",
+            bio: c.bio || "",
+            events: c.events || "",
+            achievements: c.achievements || "",
+            dateStart: c.dateStart || "",
+            dateBirth: c.dateBirth || "",
+            goal: c.goal || "",
+            dna: c.dna || "",
+            createdAt: c.createdAt || new Date().toISOString(),
+            category: 'custom'
         }));
+
+        if (validChars.length === 0) {
+             throw new Error("No valid character data found in file.");
+        }
 
         resolve(validChars);
 
