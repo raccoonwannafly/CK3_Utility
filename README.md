@@ -5,7 +5,7 @@
 <img width="1920" height="919" alt="image" src="https://github.com/user-attachments/assets/2d489574-dd9b-4b9a-9272-aae8d25a8933" />
 
 
-A React-based web toolkit for Crusader Kings III DNA manipulation and modding.
+A React-based gallery web app  for Crusader Kings III character.
 
 ## Tech Stack
 *   **Core**: React 19, TypeScript
